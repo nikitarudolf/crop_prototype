@@ -18,6 +18,9 @@
     </div>
     <div>
       <nav>
+        @!link({ route: 'fields.index', text: 'Поля' })
+        @!link({ route: 'crops.index', text: 'Культуры' })
+        @!link({ route: 'fertilizers.index', text: 'Удобрения' })
         @if(auth.user)
           @!avatar({ initials: auth.user.initials })
           @form({ route: 'session.destroy', method: 'POST' })

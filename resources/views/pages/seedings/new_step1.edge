@@ -1,0 +1,58 @@
+@let(title = 'Создание посева — Шаг 1: Выбор культуры')
+
+@component('components/layout', { title })
+  <div class="max-w-3xl mx-auto py-6 px-4">
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-gray-900">
+        Мастер посева: Поле №{{ field.id }}
+      </h1>
+      <p class="text-sm text-gray-600">Площадь: {{ field.area }} га | Тип почвы: {{ field.type }}</p>
+    </div>
+
+    <form method="GET" action="{{ route('seedings.new.step2', { fieldId: field.id }) }}">
+      <div class="space-y-4 mb-6">
+        @each(item in recommendations)
+          <label class="block p-4 border rounded-lg hover:border-green-500 cursor-pointer transition-colors bg-white shadow-sm">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center">
+                <input 
+                  type="radio" 
+                  name="cropId" 
+                  value="{{ item.crop.id }}" 
+                  required 
+                  class="mt-1 h-4 w-4 text-green-600 focus:ring-green-500"
+                />
+                <div class="ml-3">
+                  <span class="block font-medium text-gray-900">{{ item.crop.name }}</span>
+                  <span class="block text-sm text-gray-500">
+                    {{-- Исправлено на avgYieldPerHa --}}
+                    Урожайность: {{ item.crop.avgYieldPerHa }} ц/га | Семена: {{ item.crop.price }} ₽/га
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                @if(item.suitability === 'recommended')
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    Рекомендуется
+                  </span>
+                @else
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                    Не рекомендуется
+                  </span>
+                @end
+              </div>
+            </div>
+          </label>
+        @end
+      </div>
+
+      <div class="flex justify-between items-center">
+        <a href="{{ route('fields.show', { id: field.id }) }}" class="text-gray-600 hover:underline">Отмена</a>
+        <button type="submit" class="px-5 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium">
+          Далее: Удобрения &rarr;
+        </button>
+      </div>
+    </form>
+  </div>
+@end

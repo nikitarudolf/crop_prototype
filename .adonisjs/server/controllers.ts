@@ -4,6 +4,10 @@
  */
 
 export const controllers = {
+  Crops: () => import('#controllers/crops_controller'),
+  Fertilizers: () => import('#controllers/fertilizers_controller'),
+  Fields: () => import('#controllers/fields_controller'),
   NewAccount: () => import('#controllers/new_account_controller'),
+  Seedings: () => import('#controllers/seedings_controller'),
   Session: () => import('#controllers/session_controller'),
 }

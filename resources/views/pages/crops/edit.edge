@@ -1,0 +1,41 @@
+@layout()
+  <div class="form-container">
+    <div>
+      <h1>Редактировать: {{ crop.name }}</h1>
+
+      @form({ route: 'crops.update', routeParams: { id: crop.id }, method: 'PUT' })
+        <div>
+          @field.root({ name: 'name' })
+            @!field.label({ text: 'Название' })
+            @!input.control({ value: crop.name })
+            @!field.error()
+          @end
+        </div>
+
+        <div>
+          @field.root({ name: 'price' })
+            @!field.label({ text: 'Цена' })
+            @!input.control({ type: 'number', step: '0.01', min: '0.01', value: crop.price })
+            @!field.error()
+          @end
+        </div>
+
+        <div>
+          @field.root({ name: 'avgYieldPerHa' })
+            @!field.label({ text: 'Средний урожай на га' })
+            @!input.control({ type: 'number', step: '0.01', min: '0.01', value: crop.avgYieldPerHa })
+            @!field.error()
+          @end
+        </div>
+
+        <div>
+          @!button({ text: 'Сохранить', type: 'submit' })
+        </div>
+      @end
+
+      <div style="margin-top: 16px;">
+        @!link({ route: 'crops.show', routeParams: { id: crop.id }, text: 'Назад к культуре' })
+      </div>
+    </div>
+  </div>
+@end

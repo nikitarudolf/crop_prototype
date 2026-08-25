@@ -1,0 +1,33 @@
+@layout()
+  <div class="form-container">
+    <div>
+      <h1>Редактировать: {{ fertilizer.name }}</h1>
+
+      @form({ route: 'fertilizers.update', routeParams: { id: fertilizer.id }, method: 'PUT' })
+        <div>
+          @field.root({ name: 'name' })
+            @!field.label({ text: 'Название' })
+            @!input.control({ value: fertilizer.name })
+            @!field.error()
+          @end
+        </div>
+
+        <div>
+          @field.root({ name: 'price' })
+            @!field.label({ text: 'Цена' })
+            @!input.control({ type: 'number', step: '0.01', min: '0.01', value: fertilizer.price })
+            @!field.error()
+          @end
+        </div>
+
+        <div>
+          @!button({ text: 'Сохранить', type: 'submit' })
+        </div>
+      @end
+
+      <div style="margin-top: 16px;">
+        @!link({ route: 'fertilizers.show', routeParams: { id: fertilizer.id }, text: 'Назад к удобрению' })
+      </div>
+    </div>
+  </div>
+@end

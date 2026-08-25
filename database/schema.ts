@@ -7,6 +7,101 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
+export class CropSchema extends BaseModel {
+  static $columns = ['avgYieldPerHa', 'createdAt', 'id', 'name', 'price', 'updatedAt'] as const
+  $columns = CropSchema.$columns
+  @column()
+  declare avgYieldPerHa: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare name: string
+  @column()
+  declare price: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class FertilizerSchema extends BaseModel {
+  static $columns = ['createdAt', 'id', 'name', 'price', 'updatedAt'] as const
+  $columns = FertilizerSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare name: string
+  @column()
+  declare price: number
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class FieldSchema extends BaseModel {
+  static $columns = ['area', 'createdAt', 'id', 'status', 'type', 'updatedAt'] as const
+  $columns = FieldSchema.$columns
+  @column()
+  declare area: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare status: string
+  @column()
+  declare type: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class SeedingFertilizerSchema extends BaseModel {
+  static $columns = ['createdAt', 'dosageUsed', 'fertilizerId', 'id', 'seedingId', 'stageName', 'updatedAt'] as const
+  $columns = SeedingFertilizerSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare dosageUsed: number
+  @column()
+  declare fertilizerId: number
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare seedingId: number
+  @column()
+  declare stageName: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class SeedingSchema extends BaseModel {
+  static $columns = ['actualYield', 'cost', 'createdAt', 'cropId', 'fieldId', 'finishedAt', 'id', 'probability', 'startedAt', 'status', 'updatedAt'] as const
+  $columns = SeedingSchema.$columns
+  @column()
+  declare actualYield: number | null
+  @column()
+  declare cost: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare cropId: number
+  @column()
+  declare fieldId: number
+  @column.dateTime()
+  declare finishedAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare probability: string | null
+  @column.dateTime()
+  declare startedAt: DateTime
+  @column()
+  declare status: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
 export class UserSchema extends BaseModel {
   static $columns = ['createdAt', 'email', 'fullName', 'id', 'password', 'updatedAt'] as const
   $columns = UserSchema.$columns

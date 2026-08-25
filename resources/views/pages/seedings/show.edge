@@ -1,0 +1,88 @@
+@let(title = 'Посев: ' + seeding.crop.name)
+
+@component('components/layout', { title })
+  <div class="max-w-4xl mx-auto py-6 px-4">
+    <div class="mb-6 flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Посев {{ seeding.crop.name }}</h1>
+        <p class="text-sm text-gray-600">Поле: {{ seeding.field.id }} ({{ seeding.field.area }} га)</p>
+      </div>
+      <div>
+        @if(seeding.status === 'active')
+          <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-bold uppercase">Активный</span>
+        @else
+          <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-bold uppercase">Завершён</span>
+        @end
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div class="bg-white p-4 border rounded-lg shadow-sm">
+        <span class="text-xs text-gray-500 uppercase font-semibold">Дата начала</span>
+        <p class="text-lg font-medium text-gray-900">{{ seeding.startedAt.toFormat('dd.MM.yyyy') }}</p>
+      </div>
+      <div class="bg-white p-4 border rounded-lg shadow-sm">
+        <span class="text-xs text-gray-500 uppercase font-semibold">Себестоимость</span>
+        <p class="text-lg font-medium text-gray-900">{{ seeding.cost.toLocaleString() }} ₽</p>
+      </div>
+      <div class="bg-white p-4 border rounded-lg shadow-sm">
+        <span class="text-xs text-gray-500 uppercase font-semibold">Вероятность</span>
+        <p class="text-lg font-medium text-gray-900">{{ probabilityText }}</p>
+      </div>
+      </div>
+
+      {{-- Использованные удобрения --}}
+      <div class="bg-white border rounded-lg shadow-sm p-6 mb-6">
+      <h2 class="text-md font-bold text-gray-900 mb-4">Внесённые удобрения по стадиям</h2>
+      <div class="space-y-3">
+        @each(item in seeding.seedingFertilizers)
+          <div class="flex justify-between border-b pb-2 text-sm">
+            <div>
+              <span class="font-semibold text-gray-800">{{ item.stageName }}</span>: 
+              <span class="text-gray-600">{{ item.fertilizer.name }}</span>
+            </div>
+            <span class="font-medium text-gray-900">{{ item.dosageUsed }} кг/га</span>
+          </div>
+        @end
+      </div>
+      </div>
+
+      {{-- Блок завершения посева --}}
+      @if(seeding.status === 'active')
+      <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+        <h2 class="text-lg font-bold text-yellow-900 mb-2">Уборка урожая и завершение</h2>
+        <form method="POST" action="{{ route('seedings.complete', { id: seeding.id }) }}" class="flex gap-4 items-end">
+          {{ csrfField() }}
+          <div class="flex-1">
+            <label class="block text-xs font-semibold text-yellow-800 uppercase mb-1">Фактический урожай (ц/га)</label>
+            <input 
+              type="number" 
+              step="0.1" 
+              name="actualYield" 
+              required 
+              placeholder="Например: 35.5" 
+              class="w-full border rounded-md p-2 text-sm bg-white"
+            />
+          </div>
+          <button type="submit" class="px-5 py-2 bg-yellow-600 text-white font-medium rounded-md hover:bg-yellow-700">
+            Завершить посев
+          </button>
+        </form>
+      </div>
+    @else
+      <div class="bg-gray-50 border rounded-lg p-6">
+        <h2 class="text-md font-bold text-gray-900 mb-2">Итоги уборки</h2>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <span class="text-xs text-gray-500 uppercase">Дата завершения</span>
+            <p class="text-base font-medium text-gray-900">{{ seeding.finishedAt?.toFormat('dd.MM.yyyy') }}</p>
+          </div>
+          <div>
+            <span class="text-xs text-gray-500 uppercase">Фактический урожай</span>
+            <p class="text-base font-medium text-gray-900">{{ seeding.actualYield }} ц/га</p>
+          </div>
+        </div>
+      </div>
+    @end
+  </div>
+@end
