@@ -1,4 +1,5 @@
 import Fertilizer from '#models/fertilizer'
+import SeedingFertilizer from '#models/seeding_fertilizer'
 import { storeFertilizerValidator, updateFertilizerValidator } from '#validators/fertilizer'
 import type { HttpContext } from '@adonisjs/core/http'
 
@@ -36,9 +37,18 @@ export default class FertilizersController {
     return response.redirect().toRoute('fertilizers.show', { id: fertilizer.id })
   }
 
-  async destroy({ params, response }: HttpContext) {
+  async destroy({ params, response, session }: HttpContext) {
     const fertilizer = await Fertilizer.findOrFail(params.id)
-    // TODO: проверить наличие связанных посевов перед удалением, когда появится модель Seeding
+
+    const isUsedInSeedings = await SeedingFertilizer.query()
+      .where('fertilizerId', fertilizer.id)
+      .first()
+
+    if (isUsedInSeedings) {
+      session.flash('error', 'Нельзя удалить удобрение: оно используется в посевах')
+      return response.redirect().toRoute('fertilizers.show', { id: fertilizer.id })
+    }
+
     await fertilizer.delete()
     return response.redirect().toRoute('fertilizers.index')
   }

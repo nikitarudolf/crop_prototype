@@ -1,4 +1,5 @@
 import Crop from '#models/crop'
+import Seeding from '#models/seeding'
 import { storeCropValidator, updateCropValidator } from '#validators/crop'
 import type { HttpContext } from '@adonisjs/core/http'
 
@@ -36,9 +37,15 @@ export default class CropsController {
     return response.redirect().toRoute('crops.show', { id: crop.id })
   }
 
-  async destroy({ params, response }: HttpContext) {
+  async destroy({ params, response, session }: HttpContext) {
     const crop = await Crop.findOrFail(params.id)
-    // TODO: проверить наличие связанных посевов перед удалением, когда появится модель Seeding
+
+    const hasSeedings = await Seeding.query().where('cropId', crop.id).first()
+    if (hasSeedings) {
+      session.flash('error', 'Нельзя удалить культуру: есть связанные посевы')
+      return response.redirect().toRoute('crops.show', { id: crop.id })
+    }
+
     await crop.delete()
     return response.redirect().toRoute('crops.index')
   }
