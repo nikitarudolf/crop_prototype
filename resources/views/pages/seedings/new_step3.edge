@@ -1,92 +1,77 @@
-@let(title = 'Создание посева — Шаг 3: Подтверждение')
+@let(errorMessages = Object.values(flashMessages.get('inputErrorsBag', {})).flat())
 
-@component('components/layout', { title })
-  <div class="max-w-3xl mx-auto py-6 px-4">
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900">Подтверждение посева</h1>
-      <p class="text-sm text-gray-600">Проверьте данные перед сохранением</p>
+@layout({ title: 'Новый посев — подтверждение' })
+  <div class="page-header">
+    <div>
+      <h1>{{ field.displayName }}</h1>
+      <p class="lead">Проверьте данные перед сохранением</p>
     </div>
-
-    {{-- Прогресс-бар --}}
-    <div class="flex items-center mb-8 border-b pb-4">
-      <div class="flex items-center text-green-600">
-        <span class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2">✓</span>
-        Культура
-      </div>
-      <div class="h-0.5 w-12 bg-green-600 mx-4"></div>
-      <div class="flex items-center text-green-600">
-        <span class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2">✓</span>
-        Удобрения
-      </div>
-      <div class="h-0.5 w-12 bg-green-600 mx-4"></div>
-      <div class="flex items-center text-green-600 font-semibold">
-        <span class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2">3</span>
-        Итог
-      </div>
-    </div>
-
-    <form method="POST" action="{{ route('seedings.store', { fieldId: field.id }) }}">
-      {{ csrfField() }}
-      <input type="hidden" name="cropId" value="{{ crop.id }}" />
-      <input type="hidden" name="totalCost" value="{{ cost.totalCost }}" />
-      <input type="hidden" name="probability" value="{{ probability }}" />
-
-      {{-- Скрытая передача динамического массива удобрений --}}
-      @each(item in fertilizerPlan)
-        <input type="hidden" name="stageName" value="{{ item.stageName }}" />
-        <input type="hidden" name="fertilizerId" value="{{ item.fertilizer.id }}" />
-        <input type="hidden" name="dosage" value="{{ item.dosagePerHa }}" />
-      @end
-
-      <div class="bg-white border rounded-lg shadow-sm p-6 space-y-6 mb-6">
-        <div class="grid grid-cols-2 gap-4 border-b pb-4">
-          <div>
-            <span class="text-xs text-gray-500 uppercase font-semibold">Поле</span>
-            <p class="text-base font-medium text-gray-900">Поле №{{ field.id }} ({{ field.area }} га)</p>
-          </div>
-          <div>
-            <span class="text-xs text-gray-500 uppercase font-semibold">Культура</span>
-            <p class="text-base font-medium text-gray-900">{{ crop.name }}</p>
-          </div>
-        </div>
-
-        <div>
-          <span class="text-xs text-gray-500 uppercase font-semibold block mb-2">Выбранный план удобрений</span>
-          <div class="bg-gray-50 rounded-md p-3 space-y-2">
-            @each(item in fertilizerPlan)
-              <div class="flex justify-between text-sm">
-                <span><strong>{{ item.stageName }}</strong>: {{ item.fertilizer.name }}</span>
-                <span class="text-gray-600">{{ item.dosagePerHa }} кг/га</span>
-              </div>
-            @end
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 border-t pt-4 bg-green-50 p-4 rounded-md">
-          <div>
-            <span class="text-xs text-gray-600 uppercase font-semibold">Вероятность успеха</span>
-            <p class="text-lg font-bold text-green-800">{{ probabilityText }}</p>
-          </div>
-          <div>
-            <span class="text-xs text-gray-600 uppercase font-semibold">Расчётная себестоимость</span>
-            <p class="text-lg font-bold text-green-800">{{ cost.totalCost.toLocaleString() }} ₽</p>
-            <div class="text-sm text-gray-700" style="margin-top: 8px;">
-              <p>Семена: {{ cost.seedCost.toLocaleString() }} ₽</p>
-              <p>Удобрения: {{ cost.fertilizerCost.toLocaleString() }} ₽</p>
-              <p>Итого: {{ cost.totalCost.toLocaleString() }} ₽</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex justify-between items-center">
-        <button type="button" onclick="history.back()" class="text-gray-600 hover:underline">
-          &larr; Изменить удобрения
-        </button>
-        <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-bold">
-          Подтвердить и засеять
-        </button>
-      </div>
-    </form>
   </div>
+
+  <div class="steps">
+    <span class="step is-done">1. Культура</span>
+    <span class="step is-done">2. Удобрения</span>
+    <span class="step is-current">3. Итог</span>
+  </div>
+
+  @if(errorMessages.length)
+    <div class="notice">
+      @each(message in errorMessages)
+        <p>{{ message }}</p>
+      @end
+    </div>
+  @end
+
+  @form({ route: 'seedings.store', routeParams: { fieldId: field.id }, method: 'POST' })
+    <input type="hidden" name="cropId" value="{{ crop.id }}" />
+    @each(item in fertilizerPlan)
+      <input type="hidden" name="stageName" value="{{ item.stageName }}" />
+      <input type="hidden" name="fertilizerId" value="{{ item.fertilizer.id }}" />
+      <input type="hidden" name="dosage" value="{{ item.dosagePerHa }}" />
+    @end
+
+    <div class="panel">
+      <dl class="dl">
+        <dt>Поле</dt>
+        <dd>{{ field.displayName }} ({{ field.area }} га)</dd>
+        <dt>Культура</dt>
+        <dd>{{ crop.name }}</dd>
+      </dl>
+    </div>
+
+    <div class="panel">
+      <h2>План удобрений</h2>
+      @if(fertilizerPlan.length)
+        <div class="list-plain">
+          @each(item in fertilizerPlan)
+            <div>
+              <span><strong>{{ item.stageName }}</strong>: {{ item.fertilizer.name }}</span>
+              <span>{{ item.dosagePerHa }} кг/га</span>
+            </div>
+          @end
+        </div>
+      @else
+        <p class="muted">Без удобрений</p>
+      @end
+    </div>
+
+    <div class="panel">
+      <div class="stats">
+        <div>
+          <span class="stat-label">Вероятность успеха</span>
+          <p class="stat-value">{{ probabilityText }}</p>
+        </div>
+        <div>
+          <span class="stat-label">Себестоимость</span>
+          <p class="stat-value">{{ cost.totalCost.toLocaleString() }} ₽</p>
+        </div>
+      </div>
+      <p class="muted">Семена: {{ cost.seedCost.toLocaleString() }} ₽ · Удобрения: {{ cost.fertilizerCost.toLocaleString() }} ₽</p>
+    </div>
+
+    <div class="between">
+      @!button({ text: '← Изменить удобрения', type: 'button', variant: 'secondary', onclick: 'history.back()' })
+      @!button({ text: 'Подтвердить и засеять', type: 'submit' })
+    </div>
+  @end
 @end

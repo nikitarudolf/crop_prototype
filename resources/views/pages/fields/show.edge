@@ -1,47 +1,87 @@
-@layout()
-  <h1>Поле #{{ field.id }}</h1>
+@layout({ title: field.displayName })
+  <div class="page-header">
+    <div>
+      <h1>{{ field.displayName }}</h1>
+    </div>
+    <div class="actions">
+      @!link({ route: 'fields.edit', routeParams: { id: field.id }, text: 'Изменить', variant: 'secondary' })
+      @!link({ route: 'fields.index', text: 'К списку', variant: 'secondary' })
+    </div>
+  </div>
 
-  <div style="margin: 16px 0;">
-    <dl style="display: grid; grid-template-columns: 200px 1fr; gap: 8px 16px;">
+  <div class="panel">
+    <dl class="dl">
       <dt>Площадь</dt>
       <dd>{{ field.area }} га</dd>
-
       <dt>Тип почвы</dt>
       <dd>{{ field.type }}</dd>
-
       <dt>Статус</dt>
       <dd>
         @if(field.status === FIELD_STATUS.FREE)
-          Свободно
+          <span class="badge badge-ok">Свободно</span>
         @else
-          Занято
+          <span class="badge">Занято</span>
         @end
       </dd>
-
       <dt>Создано</dt>
       <dd>{{ field.createdAt.toFormat('dd.MM.yyyy HH:mm') }}</dd>
     </dl>
-
-    <div style="margin-top: 16px;">
-      @if(field.status === FIELD_STATUS.FREE)
-        @!link({ route: 'seedings.new.step1', routeParams: { fieldId: field.id }, text: 'Начать посев' })
-      @else
-        <p>Поле занято активным посевом</p>
-        @if(activeSeeding)
-          @!link({ route: 'seedings.show', routeParams: { id: activeSeeding.id }, text: 'Перейти к посеву' })
-        @end
-      @end
-    </div>
-
-    <div style="margin-top: 16px;">
-      @!link({ route: 'fields.edit', routeParams: { id: field.id }, text: 'Редактировать' })
-      @!link({ route: 'fields.index', text: 'Назад к списку' })
-    </div>
-
-    <div style="margin-top: 16px;">
-      @form({ route: 'fields.destroy', routeParams: { id: field.id }, method: 'DELETE' })
-        @!button({ text: 'Удалить', type: 'submit' })
-      @end
-    </div>
   </div>
+
+  <div class="panel">
+    @if(field.status === FIELD_STATUS.FREE)
+      @!link({ route: 'seedings.new.step1', routeParams: { fieldId: field.id }, text: 'Начать посев', variant: 'primary' })
+    @else
+      <p class="muted">Поле занято активным посевом</p>
+      @if(activeSeeding)
+        <div class="actions stack">
+          @!link({ route: 'seedings.show', routeParams: { id: activeSeeding.id }, text: 'Перейти к посеву', variant: 'secondary' })
+        </div>
+      @end
+    @end
+  </div>
+
+  <div class="panel">
+    <h2>История посевов</h2>
+    @if(seedingHistory.length)
+      <div class="table-wrap">
+        <table class="data">
+          <thead>
+            <tr>
+              <th>Культура</th>
+              <th>Дата начала</th>
+              <th>Статус</th>
+              <th>Себестоимость</th>
+              <th>Действие</th>
+            </tr>
+          </thead>
+          <tbody>
+            @each(seeding in seedingHistory)
+              <tr>
+                <td>{{ seeding.crop.name }}</td>
+                <td>{{ seeding.startedAt.toFormat('dd.MM.yyyy') }}</td>
+                <td>
+                  @if(seeding.status === 'active')
+                    <span class="badge badge-ok">Активный</span>
+                  @else
+                    <span class="badge">Завершён</span>
+                  @end
+                </td>
+                <td>{{ seeding.cost.toLocaleString() }} ₽</td>
+                <td>
+                  @!link({ route: 'seedings.show', routeParams: { id: seeding.id }, text: 'Открыть' })
+                </td>
+              </tr>
+            @end
+          </tbody>
+        </table>
+      </div>
+    @else
+      <p class="empty">Посевов пока не было</p>
+    @end
+  </div>
+
+  @form({ route: 'fields.destroy', routeParams: { id: field.id }, method: 'DELETE' })
+    @!button({ text: 'Удалить поле', variant: 'danger', type: 'submit' })
+  @end
 @end

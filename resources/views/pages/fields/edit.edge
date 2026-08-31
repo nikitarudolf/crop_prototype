@@ -1,41 +1,44 @@
-@layout()
-  <div class="form-container">
-    <div>
-      <h1>Редактировать поле #{{ field.id }}</h1>
-
-      @form({ route: 'fields.update', routeParams: { id: field.id }, method: 'PUT' })
-        <div>
-          @field.root({ name: 'area' })
-            @!field.label({ text: 'Площадь (га)' })
-            @!input.control({ type: 'number', step: '0.01', min: '0.01', value: field.area })
-            @!field.error()
-          @end
-        </div>
-
-        <div>
-          @field.root({ name: 'type' })
-            @!field.label({ text: 'Тип почвы' })
-            @!select.control({
-              options: fieldTypes.map((t) => ({
-                value: t,
-                name: t,
-                // Чтобы при ошибке валидации пользователь не терял выбор,
-                // isSelected отключаем, если есть old-значение.
-                isSelected: !old('type') && t === field.type,
-              }))
-            })
-            @!field.error()
-          @end
-        </div>
-
-        <div>
-          @!button({ text: 'Сохранить', type: 'submit' })
-        </div>
-      @end
-
-      <div style="margin-top: 16px;">
-        @!link({ route: 'fields.show', routeParams: { id: field.id }, text: 'Назад к полю' })
-      </div>
+@layout({ title: `Редактировать: ${field.displayName}` })
+  <div class="form-page">
+    <div class="page-header">
+      <h1>Редактировать: {{ field.displayName }}</h1>
     </div>
+
+    @form({ route: 'fields.update', routeParams: { id: field.id }, method: 'PUT' })
+      <div class="form-stack">
+        @field.root({ name: 'name' })
+          @!field.label({ text: 'Название' })
+          @!input.control({ placeholder: 'Необязательно, например: Северное', value: field.name })
+          @!field.error()
+        @end
+
+        @let(isOccupied = field.status !== FIELD_STATUS.FREE)
+        @field.root({ name: 'area' })
+          @!field.label({ text: 'Площадь (га)' })
+          @!input.control({ type: 'number', step: '0.01', min: '0.01', value: field.area, readonly: isOccupied })
+          @!field.error()
+          @if(isOccupied)
+            <p class="muted">Площадь нельзя менять, пока на поле идёт посев: его себестоимость рассчитана для текущей площади.</p>
+          @end
+        @end
+
+        @field.root({ name: 'type' })
+          @!field.label({ text: 'Тип почвы' })
+          @!select.control({
+            options: fieldTypes.map((t) => ({
+              value: t,
+              name: t,
+              isSelected: !old('type') && t === field.type,
+            }))
+          })
+          @!field.error()
+        @end
+
+        <div class="actions">
+          @!button({ text: 'Сохранить', type: 'submit' })
+          @!link({ route: 'fields.show', routeParams: { id: field.id }, text: 'Отмена', variant: 'secondary' })
+        </div>
+      </div>
+    @end
   </div>
 @end

@@ -1,27 +1,24 @@
-@layout()
-  <h1>{{ crop.name }}</h1>
+@layout({ title: crop.name })
+  <div class="page-header">
+    <h1>{{ crop.name }}</h1>
+    <div class="actions">
+      @!link({ route: 'crops.edit', routeParams: { id: crop.id }, text: 'Изменить', variant: 'secondary' })
+      @!link({ route: 'crops.index', text: 'К списку', variant: 'secondary' })
+    </div>
+  </div>
 
-  <div style="margin: 16px 0;">
-    <dl style="display: grid; grid-template-columns: 220px 1fr; gap: 8px 16px;">
-      <dt>Цена</dt>
-      <dd>{{ crop.price }}</dd>
-
-      <dt>Средний урожай на га</dt>
-      <dd>{{ crop.avgYieldPerHa }}</dd>
-
+  <div class="panel">
+    <dl class="dl">
+      <dt>Цена семян</dt>
+      <dd>{{ crop.price }} ₽/га</dd>
+      <dt>Средняя урожайность</dt>
+      <dd>{{ crop.avgYieldPerHa }} т/га</dd>
       <dt>Создано</dt>
       <dd>{{ crop.createdAt.toFormat('dd.MM.yyyy HH:mm') }}</dd>
     </dl>
-
-    <div style="margin-top: 16px;">
-      @!link({ route: 'crops.edit', routeParams: { id: crop.id }, text: 'Редактировать' })
-      @!link({ route: 'crops.index', text: 'Назад к списку' })
-    </div>
-
-    <div style="margin-top: 16px;">
-      @form({ route: 'crops.destroy', routeParams: { id: crop.id }, method: 'DELETE' })
-        @!button({ text: 'Удалить', type: 'submit' })
-      @end
-    </div>
   </div>
+
+  @form({ route: 'crops.destroy', routeParams: { id: crop.id }, method: 'DELETE' })
+    @!button({ text: 'Удалить культуру', variant: 'danger', type: 'submit' })
+  @end
 @end

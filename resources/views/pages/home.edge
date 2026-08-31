@@ -1,23 +1,25 @@
-@layout()
-  <div class="hero">
-    <h1>It works — welcome to the simplicity of a Hypermedia app</h1>
-    <p>
-      A lightweight foundation for building modern web interfaces — straightforward, flexible, and true to the web's core simplicity.
-    </p>
+@layout({ title: 'Главная' })
+  <div class="home-intro">
+    <h1>Учёт посевов</h1>
+    <p class="lead">Поля, справочники культур и удобрений, посевы.</p>
   </div>
 
-  <div class="cards">
-    <a href="https://insiders.adonisjs.com/docs/v7-alpha/introduction" target="_blank">
-      <h3>Official Docs &nbsp;›</h3>
-      <p>Comprehensive reference for building with AdonisJS</p>
-    </a>
-    <a href="https://adocasts.com/" target="_blank">
-      <h3>Adocasts &nbsp;›</h3>
-      <p>Guided video tutorials for everyday development</p>
-    </a>
-    <a href="https://discord.gg/vDcEjq6" target="_blank">
-      <h3>Discord &nbsp;›</h3>
-      <p>Connect with developers building with AdonisJS every day</p>
-    </a>
+  <div class="home-grid">
+    @link({ route: 'fields.index', class: 'home-card' })
+      <h2>Поля</h2>
+      <p>Площадь, тип почвы и занятость.</p>
+    @end
+    @link({ route: 'crops.index', class: 'home-card' })
+      <h2>Культуры</h2>
+      <p>Справочник культур и урожайности.</p>
+    @end
+    @link({ route: 'fertilizers.index', class: 'home-card' })
+      <h2>Удобрения</h2>
+      <p>Справочник удобрений и цен.</p>
+    @end
+    @link({ route: 'seedings.index', class: 'home-card' })
+      <h2>Посевы</h2>
+      <p>Активные и завершённые посевы.</p>
+    @end
   </div>
 @end

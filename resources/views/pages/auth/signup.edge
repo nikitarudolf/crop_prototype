@@ -1,48 +1,39 @@
-@layout()
-  <div class="form-container">
-    <div>
-      <h1>Signup</h1>
-      <p>Enter your details below to create your account</p>
+@layout({ title: 'Регистрация' })
+  <div class="form-page">
+    <div class="page-header">
+      <h1>Регистрация</h1>
     </div>
 
-    <div>
-      @form({ route: 'new_account.store', method: 'POST' })
-        <div>
-          @field.root({ name: 'fullName' })
-            @!field.label({ text: 'Full name' })
-            @!input.control()
-            @!field.error()
-          @end
-        </div>
+    @form({ route: 'new_account.store', method: 'POST' })
+      <div class="form-stack">
+        @field.root({ name: 'fullName' })
+          @!field.label({ text: 'Полное имя' })
+          @!input.control()
+          @!field.error()
+        @end
 
-        <div>
-          @field.root({ name: 'email' })
-            @!field.label({ text: 'Email' })
-            @!input.control({ type: 'email', autocomplete: 'email' })
-            @!field.error()
-          @end
-        </div>
+        @field.root({ name: 'email' })
+          @!field.label({ text: 'Электронная почта' })
+          @!input.control({ type: 'email', autocomplete: 'email' })
+          @!field.error()
+        @end
 
-        <div>
-          @field.root({ name: 'password' })
-            @!field.label({ text: 'Password' })
-            @!input.control({ type: 'password', autocomplete: 'new-password' })
-            @!field.error()
-          @end
-        </div>
+        @field.root({ name: 'password' })
+          @!field.label({ text: 'Пароль' })
+          @!input.control({ type: 'password', autocomplete: 'new-password' })
+          @!field.error()
+        @end
 
-        <div>
-          @field.root({ name: 'passwordConfirmation' })
-            @!field.label({ text: 'Confirm password' })
-            @!input.control({ type: 'password', autocomplete: 'new-password' })
-            @!field.error()
-          @end
-        </div>
+        @field.root({ name: 'passwordConfirmation' })
+          @!field.label({ text: 'Подтвердите пароль' })
+          @!input.control({ type: 'password', autocomplete: 'new-password' })
+          @!field.error()
+        @end
 
-        <div>
-          @!button({ text: 'Sign up', type: 'submit' })
+        <div class="actions">
+          @!button({ text: 'Зарегистрироваться', type: 'submit' })
         </div>
-      @end
-    </div>
+      </div>
+    @end
   </div>
 @end

@@ -1,60 +1,50 @@
-@let(title = 'Мои посевы')
-
-@component('components/layout', { title })
-  <div class="max-w-6xl mx-auto py-6 px-4">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold text-gray-900">Мои посевы</h1>
-      
-      {{-- Табы статусов --}}
-      <div class="inline-flex rounded-md shadow-sm">
-        <a 
-          href="{{ route('seedings.index', {}, { qs: { status: 'active' } }) }}" 
-          class="px-4 py-2 text-sm font-medium border rounded-l-lg {{ currentStatus === 'active' ? 'bg-green-600 text-white border-green-600' : 'bg-white text-gray-700 hover:bg-gray-50' }}"
-        >
-          Активные
-        </a>
-        <a 
-          href="{{ route('seedings.index', {}, { qs: { status: 'completed' } }) }}" 
-          class="px-4 py-2 text-sm font-medium border-t border-b border-r rounded-r-lg {{ currentStatus === 'completed' ? 'bg-green-600 text-white border-green-600' : 'bg-white text-gray-700 hover:bg-gray-50' }}"
-        >
-          Завершённые
-        </a>
-      </div>
+@layout({ title: 'Посевы' })
+  <div class="page-header">
+    <h1>Посевы</h1>
+    <div class="tabs">
+      <a
+        href="{{ route('seedings.index', {}, { qs: { status: 'active' } }) }}"
+        class="tab {{ currentStatus === 'active' ? 'is-active' : '' }}"
+      >
+        Активные
+      </a>
+      <a
+        href="{{ route('seedings.index', {}, { qs: { status: 'completed' } }) }}"
+        class="tab {{ currentStatus === 'completed' ? 'is-active' : '' }}"
+      >
+        Завершённые
+      </a>
     </div>
+  </div>
 
-    <div class="bg-white border rounded-lg shadow-sm overflow-hidden">
-      <table class="min-w-full divide-y divide-gray-200 text-sm">
-        <thead class="bg-gray-50">
+  @if(seedings.length)
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Поле</th>
-            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Культура</th>
-            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Дата старта</th>
-            <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Себестоимость</th>
-            <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Действие</th>
+            <th>Поле</th>
+            <th>Культура</th>
+            <th>Дата старта</th>
+            <th>Себестоимость</th>
+            <th>Действие</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200">
+        <tbody>
           @each(seeding in seedings)
-            <tr class="hover:bg-gray-50">
-              <td class="px-6 py-4 font-medium text-gray-900">Поле №{{ seeding.field.id }}</td>
-              <td class="px-6 py-4 text-gray-600">{{ seeding.crop.name }}</td>
-              <td class="px-6 py-4 text-gray-500">{{ seeding.startedAt.toFormat('dd.MM.yyyy') }}</td>
-              <td class="px-6 py-4 font-semibold text-gray-900">{{ seeding.cost.toLocaleString() }} ₽</td>
-              <td class="px-6 py-4 text-right">
-                <a href="{{ route('seedings.show', { id: seeding.id }) }}" class="text-green-600 hover:underline font-medium">
-                  Просмотр &rarr;
-                </a>
-              </td>
-            </tr>
-          @else
             <tr>
-              <td colspan="5" class="px-6 py-8 text-center text-gray-500">
-                Записи не найдены
+              <td>{{ seeding.field.displayName }}</td>
+              <td>{{ seeding.crop.name }}</td>
+              <td>{{ seeding.startedAt.toFormat('dd.MM.yyyy') }}</td>
+              <td>{{ seeding.cost.toLocaleString() }} ₽</td>
+              <td>
+                @!link({ route: 'seedings.show', routeParams: { id: seeding.id }, text: 'Открыть' })
               </td>
             </tr>
           @end
         </tbody>
       </table>
     </div>
-  </div>
+  @else
+    <p class="empty">Записи не найдены</p>
+  @end
 @end

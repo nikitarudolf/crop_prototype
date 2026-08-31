@@ -1,41 +1,34 @@
-@layout()
-  <div class="form-container">
-    <div>
+@layout({ title: `Редактировать: ${crop.name}` })
+  <div class="form-page">
+    <div class="page-header">
       <h1>Редактировать: {{ crop.name }}</h1>
-
-      @form({ route: 'crops.update', routeParams: { id: crop.id }, method: 'PUT' })
-        <div>
-          @field.root({ name: 'name' })
-            @!field.label({ text: 'Название' })
-            @!input.control({ value: crop.name })
-            @!field.error()
-          @end
-        </div>
-
-        <div>
-          @field.root({ name: 'price' })
-            @!field.label({ text: 'Цена' })
-            @!input.control({ type: 'number', step: '0.01', min: '0.01', value: crop.price })
-            @!field.error()
-          @end
-        </div>
-
-        <div>
-          @field.root({ name: 'avgYieldPerHa' })
-            @!field.label({ text: 'Средний урожай на га' })
-            @!input.control({ type: 'number', step: '0.01', min: '0.01', value: crop.avgYieldPerHa })
-            @!field.error()
-          @end
-        </div>
-
-        <div>
-          @!button({ text: 'Сохранить', type: 'submit' })
-        </div>
-      @end
-
-      <div style="margin-top: 16px;">
-        @!link({ route: 'crops.show', routeParams: { id: crop.id }, text: 'Назад к культуре' })
-      </div>
     </div>
+
+    @form({ route: 'crops.update', routeParams: { id: crop.id }, method: 'PUT' })
+      <div class="form-stack">
+        @field.root({ name: 'name' })
+          @!field.label({ text: 'Название' })
+          @!input.control({ value: crop.name })
+          @!field.error()
+        @end
+
+        @field.root({ name: 'price' })
+          @!field.label({ text: 'Цена семян (₽/га)' })
+          @!input.control({ type: 'number', step: '0.01', min: '0.01', value: crop.price })
+          @!field.error()
+        @end
+
+        @field.root({ name: 'avgYieldPerHa' })
+          @!field.label({ text: 'Средняя урожайность (т/га)' })
+          @!input.control({ type: 'number', step: '0.01', min: '0.01', value: crop.avgYieldPerHa })
+          @!field.error()
+        @end
+
+        <div class="actions">
+          @!button({ text: 'Сохранить', type: 'submit' })
+          @!link({ route: 'crops.show', routeParams: { id: crop.id }, text: 'Отмена', variant: 'secondary' })
+        </div>
+      </div>
+    @end
   </div>
 @end

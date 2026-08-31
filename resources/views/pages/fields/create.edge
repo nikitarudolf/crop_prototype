@@ -1,31 +1,36 @@
-@layout()
-  <div class="form-container">
-    <div>
+@layout({ title: 'Добавить поле' })
+  <div class="form-page">
+    <div class="page-header">
       <h1>Добавить поле</h1>
-
-      @form({ route: 'fields.store', method: 'POST' })
-        <div>
-          @field.root({ name: 'area' })
-            @!field.label({ text: 'Площадь (га)' })
-            @!input.control({ type: 'number', step: '0.01', min: '0.01' })
-            @!field.error()
-          @end
-        </div>
-
-        <div>
-          @field.root({ name: 'type' })
-            @!field.label({ text: 'Тип почвы' })
-            @!select.control({
-              options: fieldTypes.map((t) => ({ value: t, name: t }))
-            })
-            @!field.error()
-          @end
-        </div>
-
-        <div>
-          @!button({ text: 'Создать', type: 'submit' })
-        </div>
-      @end
     </div>
+
+    @form({ route: 'fields.store', method: 'POST' })
+      <div class="form-stack">
+        @field.root({ name: 'name' })
+          @!field.label({ text: 'Название' })
+          @!input.control({ placeholder: 'Необязательно, например: Северное' })
+          @!field.error()
+        @end
+
+        @field.root({ name: 'area' })
+          @!field.label({ text: 'Площадь (га)' })
+          @!input.control({ type: 'number', step: '0.01', min: '0.01' })
+          @!field.error()
+        @end
+
+        @field.root({ name: 'type' })
+          @!field.label({ text: 'Тип почвы' })
+          @!select.control({
+            options: fieldTypes.map((t) => ({ value: t, name: t }))
+          })
+          @!field.error()
+        @end
+
+        <div class="actions">
+          @!button({ text: 'Создать', type: 'submit' })
+          @!link({ route: 'fields.index', text: 'Отмена', variant: 'secondary' })
+        </div>
+      </div>
+    @end
   </div>
 @end

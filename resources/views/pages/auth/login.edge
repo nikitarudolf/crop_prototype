@@ -1,32 +1,27 @@
-@layout()
-  <div class="form-container">
-    <div>
-      <h1>Login</h1>
-      <p>Enter your email and password below to log in</p>
+@layout({ title: 'Вход' })
+  <div class="form-page">
+    <div class="page-header">
+      <h1>Вход</h1>
     </div>
 
-    <div>
-      @form({ route: 'session.store', method: 'POST' })
-        <div>
-          @field.root({ name: 'email' })
-            @!field.label({ text: 'Email' })
-            @!input.control({ type: 'email' })
-            @!field.error()
-          @end
-        </div>
+    @form({ route: 'session.store', method: 'POST' })
+      <div class="form-stack">
+        @field.root({ name: 'email' })
+          @!field.label({ text: 'Электронная почта' })
+          @!input.control({ type: 'email' })
+          @!field.error()
+        @end
 
-        <div>
-          @field.root({ name: 'password' })
-            @!field.label({ text: 'Password' })
-            @!input.control({ type: 'password' })
-            @!field.error()
-          @end
-        </div>
+        @field.root({ name: 'password' })
+          @!field.label({ text: 'Пароль' })
+          @!input.control({ type: 'password' })
+          @!field.error()
+        @end
 
-        <div>
-          @!button({ text: 'Login', type: 'submit' })
+        <div class="actions">
+          @!button({ text: 'Войти', type: 'submit' })
         </div>
-      @end
-    </div>
+      </div>
+    @end
   </div>
 @end
