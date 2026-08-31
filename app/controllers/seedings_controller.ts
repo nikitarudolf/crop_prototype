@@ -1,6 +1,5 @@
 import Crop from '#models/crop'
 import Fertilizer from '#models/fertilizer'
-import Field from '#models/field'
 import Seeding from '#models/seeding'
 import CostCalculationService from '#services/cost_calculation_service'
 import CropRecommendationService from '#services/crop_recommendation_service'
@@ -87,7 +86,7 @@ export default class SeedingsController {
   }
 
   async newStep2({ params, request, view, session }: HttpContext) {
-    const field = await Field.findOrFail(params.fieldId)
+    const field = await this.seedingService.getFreeFieldOrFail(params.fieldId)
     const crop = await Crop.findOrFail(request.input('cropId'))
     const allFertilizers = await Fertilizer.all()
 
