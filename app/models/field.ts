@@ -9,6 +9,9 @@ export default class Field extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
 
+  @column()
+  declare name: string | null
+
   @column({ consume: (value: string | number) => Number(value) })
   declare area: number
 
@@ -26,4 +29,8 @@ export default class Field extends BaseModel {
 
   @hasMany(() => Seeding)
   declare seedings: HasMany<typeof Seeding>
+
+  get displayName(): string {
+    return this.name || `Поле №${this.id}`
+  }
 }

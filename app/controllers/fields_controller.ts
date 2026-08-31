@@ -31,25 +31,46 @@ export default class FieldsController {
       .andWhere('status', SEEDING_STATUS.ACTIVE)
       .first()
 
-    return view.render('pages/fields/show', { field, activeSeeding, FIELD_STATUS })
+    const seedingHistory = await Seeding.query()
+      .where('fieldId', field.id)
+      .preload('crop')
+      .orderBy('startedAt', 'desc')
+
+    return view.render('pages/fields/show', { field, activeSeeding, seedingHistory, FIELD_STATUS })
   }
 
   async edit({ params, view }: HttpContext) {
     const field = await Field.findOrFail(params.id)
-    return view.render('pages/fields/edit', { field, fieldTypes: FIELD_TYPES })
+    return view.render('pages/fields/edit', { field, fieldTypes: FIELD_TYPES, FIELD_STATUS })
   }
 
-  async update({ params, request, response }: HttpContext) {
+  async update({ params, request, response, session }: HttpContext) {
     const field = await Field.findOrFail(params.id)
     const payload = await request.validateUsing(updateFieldValidator)
+
+    const areaChanged = Math.round(payload.area * 100) !== Math.round(field.area * 100)
+    if (areaChanged && field.status !== FIELD_STATUS.FREE) {
+      session.flash(
+        'error',
+        'Нельзя изменить площадь: на поле идёт посев, себестоимость которого уже рассчитана для текущей площади. Завершите посев или измените остальные поля.'
+      )
+      return response.redirect().toRoute('fields.edit', { id: field.id })
+    }
+
     field.merge(payload)
     await field.save()
     return response.redirect().toRoute('fields.show', { id: field.id })
   }
 
-  async destroy({ params, response }: HttpContext) {
+  async destroy({ params, response, session }: HttpContext) {
     const field = await Field.findOrFail(params.id)
-    // TODO: проверить наличие связанных посевов перед удалением, когда появится модель Seeding
+
+    const hasSeedings = await Seeding.query().where('fieldId', field.id).first()
+    if (hasSeedings) {
+      session.flash('error', 'Нельзя удалить поле: есть связанные посевы')
+      return response.redirect().toRoute('fields.show', { id: field.id })
+    }
+
     await field.delete()
     return response.redirect().toRoute('fields.index')
   }
