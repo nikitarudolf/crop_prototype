@@ -3,7 +3,7 @@ import env from '#start/env'
 import { defineConfig } from '@adonisjs/lucid'
 
 const dbConfig = defineConfig({
-  connection: 'sqlite',
+  connection: env.get('DB_CONNECTION'),
 
   prettyPrintDebugQueries: true,
 

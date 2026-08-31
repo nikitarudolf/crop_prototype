@@ -32,7 +32,7 @@ const loggerConfig = defineConfig({
        * Minimum log level to record.
        * Levels: trace, debug, info, warn, error, fatal
        */
-      level: env.get('LOG_LEVEL'),
+      level: env.get('LOG_LEVEL', 'info'),
 
       /**
        * Synchronous destination for logs in development.
