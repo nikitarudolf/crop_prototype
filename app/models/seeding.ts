@@ -28,8 +28,8 @@ export default class Seeding extends BaseModel {
   @column()
   declare probability: ProbabilityLabel | null
 
-  @column()
-  declare actualYield: number | null
+  @column({ consume: (value: string | number | null) => (value === null ? null : Number(value)) })
+  declare actualYieldPerHa: number | null
 
   @column({ consume: (value: string | number) => Number(value) })
   declare cost: number

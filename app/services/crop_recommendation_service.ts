@@ -1,6 +1,7 @@
 import Crop from '#models/crop'
 import Seeding from '#models/seeding'
-import { SEEDING_STATUS } from '#constants/seeding'
+import { SEEDING_STATUS, PROBABILITY_LABEL } from '#constants/seeding'
+import type { ProbabilityLabel } from '#constants/seeding'
 
 export type CropSuitability = 'recommended' | 'not_recommended'
 
@@ -48,5 +49,12 @@ export default class CropRecommendationService {
       if (a.suitability === b.suitability) return 0
       return a.suitability === 'recommended' ? -1 : 1
     })
+  }
+
+  async getProbability(fieldId: number, cropId: number): Promise<ProbabilityLabel> {
+    const recommendations = await this.getRecommendedCrops(fieldId)
+    const current = recommendations.find((item) => item.crop.id === cropId)
+
+    return current?.suitability === 'recommended' ? PROBABILITY_LABEL.HIGH : PROBABILITY_LABEL.LOW
   }
 }

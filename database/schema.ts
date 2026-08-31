@@ -40,7 +40,7 @@ export class FertilizerSchema extends BaseModel {
 }
 
 export class FieldSchema extends BaseModel {
-  static $columns = ['area', 'createdAt', 'id', 'status', 'type', 'updatedAt'] as const
+  static $columns = ['area', 'createdAt', 'id', 'name', 'status', 'type', 'updatedAt'] as const
   $columns = FieldSchema.$columns
   @column()
   declare area: number
@@ -48,6 +48,8 @@ export class FieldSchema extends BaseModel {
   declare createdAt: DateTime
   @column({ isPrimary: true })
   declare id: number
+  @column()
+  declare name: string | null
   @column()
   declare status: string
   @column()
@@ -76,10 +78,10 @@ export class SeedingFertilizerSchema extends BaseModel {
 }
 
 export class SeedingSchema extends BaseModel {
-  static $columns = ['actualYield', 'cost', 'createdAt', 'cropId', 'fieldId', 'finishedAt', 'id', 'probability', 'startedAt', 'status', 'updatedAt'] as const
+  static $columns = ['actualYieldPerHa', 'cost', 'createdAt', 'cropId', 'fieldId', 'finishedAt', 'id', 'probability', 'startedAt', 'status', 'updatedAt'] as const
   $columns = SeedingSchema.$columns
   @column()
-  declare actualYield: number | null
+  declare actualYieldPerHa: number | null
   @column()
   declare cost: number
   @column.dateTime({ autoCreate: true })

@@ -12,3 +12,13 @@ export const PROBABILITY_LABEL = {
 } as const
 
 export type ProbabilityLabel = (typeof PROBABILITY_LABEL)[keyof typeof PROBABILITY_LABEL]
+
+const PROBABILITY_TEXT: Record<ProbabilityLabel, string> = {
+  [PROBABILITY_LABEL.HIGH]: 'Высокая',
+  [PROBABILITY_LABEL.MEDIUM]: 'Средняя',
+  [PROBABILITY_LABEL.LOW]: 'Низкая',
+}
+
+export function probabilityText(probability: ProbabilityLabel | null): string {
+  return probability ? PROBABILITY_TEXT[probability] : 'Неизвестно'
+}
