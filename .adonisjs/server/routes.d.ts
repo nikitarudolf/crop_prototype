@@ -4,11 +4,11 @@ type ParamValue = string | number | bigint | boolean
 
 export type ScannedRoutes = {
   ALL: {
-    'home': { paramsTuple?: []; params?: {} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'new_account.store': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
     'session.store': { paramsTuple?: []; params?: {} }
+    'home': { paramsTuple?: []; params?: {} }
     'session.destroy': { paramsTuple?: []; params?: {} }
     'fields.index': { paramsTuple?: []; params?: {} }
     'fields.create': { paramsTuple?: []; params?: {} }
@@ -40,9 +40,9 @@ export type ScannedRoutes = {
     'seedings.complete': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   GET: {
-    'home': { paramsTuple?: []; params?: {} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
+    'home': { paramsTuple?: []; params?: {} }
     'fields.index': { paramsTuple?: []; params?: {} }
     'fields.create': { paramsTuple?: []; params?: {} }
     'fields.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -61,9 +61,9 @@ export type ScannedRoutes = {
     'seedings.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   HEAD: {
-    'home': { paramsTuple?: []; params?: {} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
+    'home': { paramsTuple?: []; params?: {} }
     'fields.index': { paramsTuple?: []; params?: {} }
     'fields.create': { paramsTuple?: []; params?: {} }
     'fields.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
