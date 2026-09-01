@@ -1,6 +1,6 @@
 import Fertilizer from '#models/fertilizer'
 import SeedingFertilizer from '#models/seeding_fertilizer'
-import { storeFertilizerValidator, updateFertilizerValidator } from '#validators/fertilizer'
+import { fertilizerValidator } from '#validators/fertilizer'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class FertilizersController {
@@ -14,7 +14,7 @@ export default class FertilizersController {
   }
 
   async store({ request, response }: HttpContext) {
-    const payload = await request.validateUsing(storeFertilizerValidator)
+    const payload = await request.validateUsing(fertilizerValidator)
     await Fertilizer.create(payload)
     return response.redirect().toRoute('fertilizers.index')
   }
@@ -31,7 +31,7 @@ export default class FertilizersController {
 
   async update({ params, request, response }: HttpContext) {
     const fertilizer = await Fertilizer.findOrFail(params.id)
-    const payload = await request.validateUsing(updateFertilizerValidator)
+    const payload = await request.validateUsing(fertilizerValidator)
     fertilizer.merge(payload)
     await fertilizer.save()
     return response.redirect().toRoute('fertilizers.show', { id: fertilizer.id })

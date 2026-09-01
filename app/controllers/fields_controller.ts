@@ -2,7 +2,7 @@ import Field from '#models/field'
 import Seeding from '#models/seeding'
 import { FIELD_STATUS, FIELD_TYPES } from '#constants/field'
 import { SEEDING_STATUS } from '#constants/seeding'
-import { storeFieldValidator, updateFieldValidator } from '#validators/field'
+import { fieldValidator } from '#validators/field'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class FieldsController {
@@ -16,11 +16,11 @@ export default class FieldsController {
   }
 
   async store({ request, response }: HttpContext) {
-    const payload = await request.validateUsing(storeFieldValidator)
+    const payload = await request.validateUsing(fieldValidator)
     await Field.create({
-    ...payload,
-    status: FIELD_STATUS.FREE,
-  })
+      ...payload,
+      status: FIELD_STATUS.FREE,
+    })
     return response.redirect().toRoute('fields.index')
   }
 
@@ -36,7 +36,13 @@ export default class FieldsController {
       .preload('crop')
       .orderBy('startedAt', 'desc')
 
-    return view.render('pages/fields/show', { field, activeSeeding, seedingHistory, FIELD_STATUS })
+    return view.render('pages/fields/show', {
+      field,
+      activeSeeding,
+      seedingHistory,
+      FIELD_STATUS,
+      SEEDING_STATUS,
+    })
   }
 
   async edit({ params, view }: HttpContext) {
@@ -46,7 +52,7 @@ export default class FieldsController {
 
   async update({ params, request, response, session }: HttpContext) {
     const field = await Field.findOrFail(params.id)
-    const payload = await request.validateUsing(updateFieldValidator)
+    const payload = await request.validateUsing(fieldValidator)
 
     const areaChanged = Math.round(payload.area * 100) !== Math.round(field.area * 100)
     if (areaChanged && field.status !== FIELD_STATUS.FREE) {

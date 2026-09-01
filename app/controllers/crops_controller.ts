@@ -1,6 +1,6 @@
 import Crop from '#models/crop'
 import Seeding from '#models/seeding'
-import { storeCropValidator, updateCropValidator } from '#validators/crop'
+import { cropValidator } from '#validators/crop'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class CropsController {
@@ -14,7 +14,7 @@ export default class CropsController {
   }
 
   async store({ request, response }: HttpContext) {
-    const payload = await request.validateUsing(storeCropValidator)
+    const payload = await request.validateUsing(cropValidator)
     await Crop.create(payload)
     return response.redirect().toRoute('crops.index')
   }
@@ -31,7 +31,7 @@ export default class CropsController {
 
   async update({ params, request, response }: HttpContext) {
     const crop = await Crop.findOrFail(params.id)
-    const payload = await request.validateUsing(updateCropValidator)
+    const payload = await request.validateUsing(cropValidator)
     crop.merge(payload)
     await crop.save()
     return response.redirect().toRoute('crops.show', { id: crop.id })
