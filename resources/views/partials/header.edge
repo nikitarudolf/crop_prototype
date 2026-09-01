@@ -2,14 +2,14 @@
   <div class="site-header-inner">
     @!link({ route: 'home', text: 'ByCrop', class: 'brand' })
     <nav class="site-nav">
-      @if(auth.user)
+      @if(auth && auth.user)
         @!link({ route: 'fields.index', text: 'Поля' })
         @!link({ route: 'crops.index', text: 'Культуры' })
         @!link({ route: 'fertilizers.index', text: 'Удобрения' })
         @!link({ route: 'seedings.index', text: 'Посевы' })
       @end
       <div class="site-nav-auth">
-        @if(auth.user)
+        @if(auth && auth.user)
           @!avatar({ initials: auth.user.initials })
           @form({ route: 'session.destroy', method: 'POST', class: 'form-inline' })
             @!button({ text: 'Выйти', variant: 'ghost', type: 'submit' })
