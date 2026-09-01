@@ -1,9 +1,12 @@
 @layout({ title: 'Удобрения' })
   <div class="page-header">
     <h1>Удобрения</h1>
-    @!link({ route: 'fertilizers.create', text: 'Добавить удобрение', variant: 'primary' })
+    @!link({
+      route: 'fertilizers.create',
+      text: 'Добавить удобрение',
+      variant: 'primary',
+    })
   </div>
-
   @if(fertilizers.length)
     <div class="table-wrap">
       <table class="data">
@@ -11,7 +14,7 @@
           <tr>
             <th>ID</th>
             <th>Название</th>
-            <th>Цена, ₽/кг</th>
+            <th>Цена, Br/кг</th>
             <th>Действия</th>
           </tr>
         </thead>
@@ -23,8 +26,16 @@
               <td>{{ fertilizer.price }}</td>
               <td>
                 <div class="row-actions">
-                  @!link({ route: 'fertilizers.show', routeParams: { id: fertilizer.id }, text: 'Открыть' })
-                  @!link({ route: 'fertilizers.edit', routeParams: { id: fertilizer.id }, text: 'Изменить' })
+                  @!link({
+                    route: 'fertilizers.show',
+                    routeParams: { id: fertilizer.id },
+                    text: 'Открыть',
+                  })
+                  @!link({
+                    route: 'fertilizers.edit',
+                    routeParams: { id: fertilizer.id },
+                    text: 'Изменить',
+                  })
                 </div>
               </td>
             </tr>

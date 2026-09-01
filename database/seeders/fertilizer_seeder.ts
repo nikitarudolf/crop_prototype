@@ -4,11 +4,11 @@ import { BaseSeeder } from '@adonisjs/lucid/seeders'
 export default class extends BaseSeeder {
   async run() {
     await Fertilizer.createMany([
-      { name: 'Аммофос', price: 42000 },
-      { name: 'Карбамид', price: 28000 },
-      { name: 'Суперфосфат', price: 18000 },
-      { name: 'Сульфат калия', price: 35000 },
-      { name: 'КАС-32', price: 22000 },
+      { name: 'Аммофос', price: 2.2 },
+      { name: 'Карбамид', price: 1.6 },
+      { name: 'Суперфосфат', price: 1.1 },
+      { name: 'Сульфат калия', price: 2.0 },
+      { name: 'КАС-32', price: 1.3 },
     ])
   }
 }

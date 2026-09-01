@@ -2,7 +2,12 @@
   <div class="page-header">
     <h1>{{ fertilizer.name }}</h1>
     <div class="actions">
-      @!link({ route: 'fertilizers.edit', routeParams: { id: fertilizer.id }, text: 'Изменить', variant: 'secondary' })
+      @!link({
+        route: 'fertilizers.edit',
+        routeParams: { id: fertilizer.id },
+        text: 'Изменить',
+        variant: 'secondary',
+      })
       @!link({ route: 'fertilizers.index', text: 'К списку', variant: 'secondary' })
     </div>
   </div>
@@ -10,13 +15,16 @@
   <div class="panel">
     <dl class="dl">
       <dt>Цена</dt>
-      <dd>{{ fertilizer.price }} ₽/кг</dd>
+      <dd>{{ fertilizer.price }} Br/кг</dd>
       <dt>Создано</dt>
       <dd>{{ fertilizer.createdAt.toFormat('dd.MM.yyyy HH:mm') }}</dd>
     </dl>
   </div>
-
-  @form({ route: 'fertilizers.destroy', routeParams: { id: fertilizer.id }, method: 'DELETE' })
+  @form({
+    route: 'fertilizers.destroy',
+    routeParams: { id: fertilizer.id },
+    method: 'DELETE',
+  })
     @!button({ text: 'Удалить удобрение', variant: 'danger', type: 'submit' })
   @end
 @end

@@ -2,7 +2,12 @@
   <div class="page-header">
     <h1>{{ crop.name }}</h1>
     <div class="actions">
-      @!link({ route: 'crops.edit', routeParams: { id: crop.id }, text: 'Изменить', variant: 'secondary' })
+      @!link({
+        route: 'crops.edit',
+        routeParams: { id: crop.id },
+        text: 'Изменить',
+        variant: 'secondary',
+      })
       @!link({ route: 'crops.index', text: 'К списку', variant: 'secondary' })
     </div>
   </div>
@@ -10,14 +15,13 @@
   <div class="panel">
     <dl class="dl">
       <dt>Цена семян</dt>
-      <dd>{{ crop.price }} ₽/га</dd>
+      <dd>{{ crop.price }} Br/га</dd>
       <dt>Средняя урожайность</dt>
       <dd>{{ crop.avgYieldPerHa }} т/га</dd>
       <dt>Создано</dt>
       <dd>{{ crop.createdAt.toFormat('dd.MM.yyyy HH:mm') }}</dd>
     </dl>
   </div>
-
   @form({ route: 'crops.destroy', routeParams: { id: crop.id }, method: 'DELETE' })
     @!button({ text: 'Удалить культуру', variant: 'danger', type: 'submit' })
   @end

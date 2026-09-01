@@ -3,7 +3,6 @@
     <h1>Культуры</h1>
     @!link({ route: 'crops.create', text: 'Добавить культуру', variant: 'primary' })
   </div>
-
   @if(crops.length)
     <div class="table-wrap">
       <table class="data">
@@ -11,7 +10,7 @@
           <tr>
             <th>ID</th>
             <th>Название</th>
-            <th>Цена семян, ₽/га</th>
+            <th>Цена семян, Br/га</th>
             <th>Урожайность, т/га</th>
             <th>Действия</th>
           </tr>
@@ -25,8 +24,16 @@
               <td>{{ crop.avgYieldPerHa }}</td>
               <td>
                 <div class="row-actions">
-                  @!link({ route: 'crops.show', routeParams: { id: crop.id }, text: 'Открыть' })
-                  @!link({ route: 'crops.edit', routeParams: { id: crop.id }, text: 'Изменить' })
+                  @!link({
+                    route: 'crops.show',
+                    routeParams: { id: crop.id },
+                    text: 'Открыть',
+                  })
+                  @!link({
+                    route: 'crops.edit',
+                    routeParams: { id: crop.id },
+                    text: 'Изменить',
+                  })
                 </div>
               </td>
             </tr>

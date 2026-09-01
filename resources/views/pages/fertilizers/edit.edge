@@ -3,24 +3,36 @@
     <div class="page-header">
       <h1>Редактировать: {{ fertilizer.name }}</h1>
     </div>
-
-    @form({ route: 'fertilizers.update', routeParams: { id: fertilizer.id }, method: 'PUT' })
+    @form({
+      route: 'fertilizers.update',
+      routeParams: { id: fertilizer.id },
+      method: 'PUT',
+    })
       <div class="form-stack">
         @field.root({ name: 'name' })
           @!field.label({ text: 'Название' })
           @!input.control({ value: fertilizer.name })
           @!field.error()
         @end
-
         @field.root({ name: 'price' })
-          @!field.label({ text: 'Цена (₽/кг)' })
-          @!input.control({ type: 'number', step: '0.01', min: '0.01', value: fertilizer.price })
+          @!field.label({ text: 'Цена (Br/кг)' })
+          @!input.control({
+            type: 'number',
+            step: '0.01',
+            min: '0.01',
+            value: fertilizer.price,
+          })
           @!field.error()
         @end
 
         <div class="actions">
           @!button({ text: 'Сохранить', type: 'submit' })
-          @!link({ route: 'fertilizers.show', routeParams: { id: fertilizer.id }, text: 'Отмена', variant: 'secondary' })
+          @!link({
+            route: 'fertilizers.show',
+            routeParams: { id: fertilizer.id },
+            text: 'Отмена',
+            variant: 'secondary',
+          })
         </div>
       </div>
     @end

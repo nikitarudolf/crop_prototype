@@ -3,7 +3,6 @@
     <h1>Поля</h1>
     @!link({ route: 'fields.create', text: 'Добавить поле', variant: 'primary' })
   </div>
-
   @if(fields.length)
     <div class="table-wrap">
       <table class="data">
@@ -21,7 +20,7 @@
             <tr>
               <td>{{ field.displayName }}</td>
               <td>{{ field.area }}</td>
-              <td>{{ field.type }}</td>
+              <td>{{ fieldTypeLabel(field.type) }}</td>
               <td>
                 @if(field.status === 'free')
                   <span class="badge badge-ok">Свободно</span>
@@ -31,8 +30,16 @@
               </td>
               <td>
                 <div class="row-actions">
-                  @!link({ route: 'fields.show', routeParams: { id: field.id }, text: 'Открыть' })
-                  @!link({ route: 'fields.edit', routeParams: { id: field.id }, text: 'Изменить' })
+                  @!link({
+                    route: 'fields.show',
+                    routeParams: { id: field.id },
+                    text: 'Открыть',
+                  })
+                  @!link({
+                    route: 'fields.edit',
+                    routeParams: { id: field.id },
+                    text: 'Изменить',
+                  })
                 </div>
               </td>
             </tr>
