@@ -9,6 +9,7 @@ import type { SeedingPlanInput } from '#services/seeding_service'
 import { SEEDING_STATUS, probabilityText } from '#constants/seeding'
 import { seedingPlanValidator, completeSeedingValidator } from '#validators/seeding'
 import type { HttpContext } from '@adonisjs/core/http'
+import { inject } from '@adonisjs/core'
 
 interface RawPlanRow {
   stageName: string
@@ -31,14 +32,20 @@ function toArray<T = string>(value: unknown): T[] {
   return (Array.isArray(value) ? value : [value]) as T[]
 }
 
+@inject()
 export default class SeedingsController {
-  private seedingService = new SeedingService()
-  private cropService = new CropRecommendationService()
-  private fertilizerPlanService = new FertilizerPlanService()
-  private costService = new CostCalculationService()
+  constructor(
+    private seedingService: SeedingService,
+    private cropService: CropRecommendationService,
+    private fertilizerPlanService: FertilizerPlanService,
+    private costService: CostCalculationService
+  ) {}
 
   async index({ request, view }: HttpContext) {
-    const status = request.input('status', SEEDING_STATUS.ACTIVE)
+    const requestedStatus = request.input('status', SEEDING_STATUS.ACTIVE)
+    const status = Object.values(SEEDING_STATUS).includes(requestedStatus)
+      ? requestedStatus
+      : SEEDING_STATUS.ACTIVE
 
     const seedings = await Seeding.query()
       .where('status', status)
@@ -46,7 +53,7 @@ export default class SeedingsController {
       .preload('crop')
       .orderBy('startedAt', 'desc')
 
-    return view.render('pages/seedings/index', { seedings, currentStatus: status })
+    return view.render('pages/seedings/index', { seedings, currentStatus: status, SEEDING_STATUS })
   }
 
   async show({ params, view }: HttpContext) {
@@ -59,6 +66,7 @@ export default class SeedingsController {
 
     return view.render('pages/seedings/show', {
       seeding,
+      SEEDING_STATUS,
       probabilityText: probabilityText(seeding.probability),
       expectedTons: this.toTons(seeding.expectedYieldPerHa, seeding.field.area),
       actualTons: this.toTons(seeding.actualYieldPerHa, seeding.field.area),
@@ -85,9 +93,17 @@ export default class SeedingsController {
     })
   }
 
-  async newStep2({ params, request, view, session }: HttpContext) {
+  async newStep2({ params, request, view, session, response }: HttpContext) {
     const field = await this.seedingService.getFreeFieldOrFail(params.fieldId)
-    const crop = await Crop.findOrFail(request.input('cropId'))
+
+    const cropId = Number(request.input('cropId'))
+    const crop = Number.isFinite(cropId) && cropId > 0 ? await Crop.find(cropId) : null
+
+    if (!crop) {
+      session.flash('error', 'Выберите культуру из списка')
+      return response.redirect().toRoute('seedings.new.step1', { fieldId: field.id })
+    }
+
     const allFertilizers = await Fertilizer.all()
 
     const { rows, showEmptyPlanNotice } = await this.buildStagePlanRows(request, session, crop)

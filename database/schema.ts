@@ -59,7 +59,15 @@ export class FieldSchema extends BaseModel {
 }
 
 export class SeedingFertilizerSchema extends BaseModel {
-  static $columns = ['createdAt', 'dosageUsed', 'fertilizerId', 'id', 'seedingId', 'stageName', 'updatedAt'] as const
+  static $columns = [
+    'createdAt',
+    'dosageUsed',
+    'fertilizerId',
+    'id',
+    'seedingId',
+    'stageName',
+    'updatedAt',
+  ] as const
   $columns = SeedingFertilizerSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -78,7 +86,22 @@ export class SeedingFertilizerSchema extends BaseModel {
 }
 
 export class SeedingSchema extends BaseModel {
-  static $columns = ['actualYieldPerHa', 'cost', 'createdAt', 'cropId', 'fieldId', 'finishedAt', 'id', 'probability', 'startedAt', 'status', 'updatedAt'] as const
+  static $columns = [
+    'actualYieldPerHa',
+    'cost',
+    'createdAt',
+    'cropId',
+    'expectedYieldPerHa',
+    'fertilizerCost',
+    'fieldId',
+    'finishedAt',
+    'id',
+    'probability',
+    'seedCost',
+    'startedAt',
+    'status',
+    'updatedAt',
+  ] as const
   $columns = SeedingSchema.$columns
   @column()
   declare actualYieldPerHa: number | null
@@ -89,6 +112,10 @@ export class SeedingSchema extends BaseModel {
   @column()
   declare cropId: number
   @column()
+  declare expectedYieldPerHa: number | null
+  @column()
+  declare fertilizerCost: number | null
+  @column()
   declare fieldId: number
   @column.dateTime()
   declare finishedAt: DateTime | null
@@ -96,6 +123,8 @@ export class SeedingSchema extends BaseModel {
   declare id: number
   @column()
   declare probability: string | null
+  @column()
+  declare seedCost: number | null
   @column.dateTime()
   declare startedAt: DateTime
   @column()

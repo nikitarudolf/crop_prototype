@@ -1,19 +1,4 @@
-@let(oldStageNames = old('stageName', []))
-@let(oldFertilizerIds = old('fertilizerId', []))
-@let(oldDosages = old('dosage', []))
-@let(rows = oldStageNames.length
-  ? oldStageNames.map((stageName, i) => ({
-      stageName,
-      fertilizerId: oldFertilizerIds[i],
-      dosage: oldDosages[i],
-    }))
-  : plan.map((item) => ({
-      stageName: item.stageName,
-      fertilizerId: String(item.fertilizer.id),
-      dosage: item.dosagePerHa,
-    })))
 @let(errorMessages = Object.values(flashMessages.get('inputErrorsBag', {})).flat())
-
 @layout({ title: 'Новый посев — удобрения' })
   <div class="page-header">
     <div>
@@ -27,7 +12,6 @@
     <span class="step is-current">2. Удобрения</span>
     <span class="step">3. Итог</span>
   </div>
-
   @if(errorMessages.length)
     <div class="notice">
       @each(message in errorMessages)
@@ -35,65 +19,112 @@
       @end
     </div>
   @end
-
-  @if(plan.length === 0 && !oldStageNames.length)
+  @if(showEmptyPlanNotice)
     <div class="notice">
-      <p>Для культуры «{{ crop.name }}» нет готового плана удобрений. Стадии можно не добавлять — план останется пустым.</p>
+      <p>Готового плана нет — добавьте стадии вручную или оставьте план пустым.</p>
     </div>
   @end
 
-  <div class="panel">
-    @form({ route: 'seedings.new.step3', routeParams: { fieldId: field.id }, method: 'POST' })
+  <div class="panel" x-data="stagePlan({{ JSON.stringify(stagePlanConfig) }})">
+    @form({
+      route: 'seedings.new.step3',
+      routeParams: { fieldId: field.id },
+      method: 'POST',
+    })
       <input type="hidden" name="cropId" value="{{ crop.id }}" />
 
       <div class="form-stack">
-        @each((row, index) in rows)
+        <template x-for="(row, index) in rows" :key="row.uid">
           <div class="stage-row">
             <div>
-              <label for="stageName-{{ index }}">Стадия</label>
+              <label :for="'stageName-' + row.uid">Стадия</label>
               <input
                 type="text"
-                id="stageName-{{ index }}"
+                :id="'stageName-' + row.uid"
                 name="stageName"
-                value="{{ row.stageName }}"
+                x-model="row.stageName"
                 required
               />
             </div>
 
             <div>
-              <label for="fertilizerId-{{ index }}">Удобрение</label>
-              <select id="fertilizerId-{{ index }}" name="fertilizerId" required>
+              <label :for="'fertilizerId-' + row.uid">Удобрение</label>
+              <select
+                :id="'fertilizerId-' + row.uid"
+                name="fertilizerId"
+                x-model="row.fertilizerId"
+                required
+              >
                 @each(fertilizer in allFertilizers)
-                  <option
-                    value="{{ fertilizer.id }}"
-                    {{ String(fertilizer.id) === row.fertilizerId ? 'selected' : '' }}
-                  >
-                    {{ fertilizer.name }} ({{ fertilizer.price }} ₽/кг)
+                  <option value="{{ fertilizer.id }}">
+                    {{ fertilizer.name }}
+                    ({{ fertilizer.price }}
+                    Br/кг)
                   </option>
                 @end
               </select>
             </div>
 
             <div class="stage-dose">
-              <label for="dosage-{{ index }}">Доза (кг/га)</label>
+              <label :for="'dosage-' + row.uid">Доза (кг/га)</label>
               <input
                 type="number"
                 step="0.1"
                 min="0.1"
-                id="dosage-{{ index }}"
+                :id="'dosage-' + row.uid"
                 name="dosage"
-                value="{{ row.dosage }}"
+                x-model="row.dosage"
                 required
               />
             </div>
+
+            <span class="stage-cost" x-text="money(rowCost(row))"></span>
+
+            <button type="button" class="btn btn-ghost" @click="removeRow(index)">✕</button>
           </div>
-        @end
+        </template>
+
+        <div>
+          @!button({
+            text: '+ Добавить стадию',
+            type: 'button',
+            variant: 'secondary',
+            '@click': 'addRow()',
+          })
+        </div>
 
         <div class="between">
-          @!link({ route: 'seedings.new.step1', routeParams: { fieldId: field.id }, text: '← Назад', variant: 'secondary' })
+          @!link({
+            route: 'seedings.new.step1',
+            routeParams: { fieldId: field.id },
+            routeOptions: { qs: { cropId: crop.id } },
+            text: '← Назад',
+            variant: 'secondary',
+          })
           @!button({ text: 'Далее: расчёт себестоимости →', type: 'submit' })
         </div>
       </div>
     @end
+
+    <div class="panel stage-summary">
+      <div class="stats">
+        <div>
+          <span class="stat-label">Семена</span>
+          <p class="stat-value" x-text="money(seedCost)"></p>
+        </div>
+        <div>
+          <span class="stat-label">Удобрения</span>
+          <p class="stat-value" x-text="money(fertilizerCost)"></p>
+        </div>
+        <div>
+          <span class="stat-label">Итого</span>
+          <p class="stat-value" x-text="money(totalCost)"></p>
+        </div>
+        <div>
+          <span class="stat-label">На гектар</span>
+          <p class="stat-value" x-text="money(costPerHa)"></p>
+        </div>
+      </div>
+    </div>
   </div>
 @end

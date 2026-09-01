@@ -34,6 +34,15 @@ export default class Seeding extends BaseModel {
   @column({ consume: (value: string | number) => Number(value) })
   declare cost: number
 
+  @column({ consume: (value: string | number | null) => (value === null ? null : Number(value)) })
+  declare seedCost: number | null
+
+  @column({ consume: (value: string | number | null) => (value === null ? null : Number(value)) })
+  declare fertilizerCost: number | null
+
+  @column({ consume: (value: string | number | null) => (value === null ? null : Number(value)) })
+  declare expectedYieldPerHa: number | null
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

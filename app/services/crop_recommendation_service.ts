@@ -2,6 +2,8 @@ import Crop from '#models/crop'
 import Seeding from '#models/seeding'
 import { SEEDING_STATUS, PROBABILITY_LABEL } from '#constants/seeding'
 import type { ProbabilityLabel } from '#constants/seeding'
+import { errors } from '@adonisjs/lucid'
+import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 
 export type CropSuitability = 'recommended' | 'not_recommended'
 
@@ -12,10 +14,15 @@ export interface CropRecommendation {
 }
 
 export default class CropRecommendationService {
-  async getRecommendedCrops(fieldId: number): Promise<CropRecommendation[]> {
-    const crops = await Crop.all()
+  async getRecommendedCrops(
+    fieldId: number,
+    trx?: TransactionClientContract
+  ): Promise<CropRecommendation[]> {
+    const options = trx ? { client: trx } : {}
 
-    const lastCompletedSeeding = await Seeding.query()
+    const crops = await Crop.all(options)
+
+    const lastCompletedSeeding = await Seeding.query(options)
       .where('fieldId', fieldId)
       .andWhere('status', SEEDING_STATUS.COMPLETED)
       .orderBy('finishedAt', 'desc')
@@ -51,10 +58,28 @@ export default class CropRecommendationService {
     })
   }
 
-  async getProbability(fieldId: number, cropId: number): Promise<ProbabilityLabel> {
-    const recommendations = await this.getRecommendedCrops(fieldId)
+  async getRecommendation(
+    fieldId: number,
+    cropId: number,
+    trx?: TransactionClientContract
+  ): Promise<CropRecommendation> {
+    const recommendations = await this.getRecommendedCrops(fieldId, trx)
     const current = recommendations.find((item) => item.crop.id === cropId)
 
-    return current?.suitability === 'recommended' ? PROBABILITY_LABEL.HIGH : PROBABILITY_LABEL.LOW
+    if (!current) {
+      throw new errors.E_ROW_NOT_FOUND()
+    }
+
+    return current
+  }
+
+  async getProbability(
+    fieldId: number,
+    cropId: number,
+    trx?: TransactionClientContract
+  ): Promise<ProbabilityLabel> {
+    const { suitability } = await this.getRecommendation(fieldId, cropId, trx)
+
+    return suitability === 'recommended' ? PROBABILITY_LABEL.HIGH : PROBABILITY_LABEL.LOW
   }
 }

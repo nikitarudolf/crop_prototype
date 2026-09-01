@@ -1,4 +1,5 @@
 import Fertilizer from '#models/fertilizer'
+import logger from '@adonisjs/core/services/logger'
 
 interface PlanTemplateItem {
   stageName: string
@@ -13,23 +14,21 @@ export interface FertilizerPlanItem {
 }
 
 const FERTILIZER_PLANS: Record<string, PlanTemplateItem[]> = {
-  'Пшеница': [
+  Пшеница: [
     { stageName: 'Перед посевом', fertilizerName: 'Аммофос', dosagePerHa: 100 },
     { stageName: 'Вегетация', fertilizerName: 'Карбамид', dosagePerHa: 50 },
     { stageName: 'Колошение', fertilizerName: 'КАС-32', dosagePerHa: 30 },
   ],
-  'Кукуруза': [
+  Кукуруза: [
     { stageName: 'Перед посевом', fertilizerName: 'Аммофос', dosagePerHa: 120 },
     { stageName: 'Вегетация', fertilizerName: 'Карбамид', dosagePerHa: 60 },
   ],
-  'Соя': [
-    { stageName: 'Перед посевом', fertilizerName: 'Суперфосфат', dosagePerHa: 80 },
-  ],
-  'Ячмень': [
+  Соя: [{ stageName: 'Перед посевом', fertilizerName: 'Суперфосфат', dosagePerHa: 80 }],
+  Ячмень: [
     { stageName: 'Перед посевом', fertilizerName: 'Аммофос', dosagePerHa: 90 },
     { stageName: 'Вегетация', fertilizerName: 'Карбамид', dosagePerHa: 40 },
   ],
-  'Подсолнечник': [
+  Подсолнечник: [
     { stageName: 'Перед посевом', fertilizerName: 'Суперфосфат', dosagePerHa: 80 },
     { stageName: 'Цветение', fertilizerName: 'Сульфат калия', dosagePerHa: 40 },
   ],
@@ -44,7 +43,9 @@ export default class FertilizerPlanService {
       const fertilizer = await Fertilizer.query().where('name', item.fertilizerName).first()
 
       if (!fertilizer) {
-        console.warn(`Удобрение "${item.fertilizerName}" не найдено в справочнике, пропускаю стадию "${item.stageName}"`)
+        logger.warn(
+          `Удобрение "${item.fertilizerName}" не найдено в справочнике, пропускаю стадию "${item.stageName}"`
+        )
         continue
       }
 

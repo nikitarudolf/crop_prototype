@@ -2,7 +2,7 @@
   <div class="page-header">
     <div>
       <h1>{{ field.displayName }}</h1>
-      <p class="lead">Площадь: {{ field.area }} га · Тип почвы: {{ field.type }}</p>
+      <p class="lead">Площадь: {{ field.area }} га · Тип почвы: {{ fieldTypeLabel(field.type) }}</p>
     </div>
   </div>
 
@@ -11,34 +11,63 @@
     <span class="step">2. Удобрения</span>
     <span class="step">3. Итог</span>
   </div>
-
-  @form({ route: 'seedings.new.step2', routeParams: { fieldId: field.id }, method: 'GET' })
+  @form({
+    route: 'seedings.new.step2',
+    routeParams: { fieldId: field.id },
+    method: 'GET',
+  })
     <div class="choice-list">
       @each(item in recommendations)
         <label class="choice">
           <div class="choice-inner">
             <div class="choice-main">
-              <input type="radio" name="cropId" value="{{ item.crop.id }}" required />
+              <input
+                type="radio"
+                name="cropId"
+                value="{{ item.crop.id }}"
+                {{
+                  selectedCropId && String(item.crop.id) === String(selectedCropId)
+                    ? 'checked'
+                    : ''
+                }}
+                required
+              />
               <div>
                 <span>{{ item.crop.name }}</span>
                 <p class="muted">
-                  Урожайность: {{ item.crop.avgYieldPerHa }} т/га · Семена: {{ item.crop.price }} ₽/га
+                  Семена:
+                  {{ money(item.cost.seedCost) }}
+                  на поле ({{ money(item.crop.price) }}/га) · Ожидаемый урожай:
+                  {{ item.cost.expectedTons }}
+                  т ({{ item.crop.avgYieldPerHa }}
+                  т/га)
                 </p>
               </div>
             </div>
 
-            @if(item.suitability === 'recommended')
-              <span class="badge badge-ok">Рекомендуется</span>
-            @else
-              <span class="badge badge-warn">Не рекомендуется</span>
-            @end
+            <div>
+              @if(item.suitability === 'recommended')
+                <span class="badge badge-ok">Рекомендуется</span>
+              @else
+                <span class="badge badge-warn">Не рекомендуется</span>
+              @end
+
+              <p class="muted">{{ item.reason }}</p>
+            </div>
           </div>
         </label>
       @end
     </div>
 
+    <p class="muted">Указана только стоимость семян. Удобрения добавятся на следующем шаге.</p>
+
     <div class="between">
-      @!link({ route: 'fields.show', routeParams: { id: field.id }, text: 'Отмена', variant: 'secondary' })
+      @!link({
+        route: 'fields.show',
+        routeParams: { id: field.id },
+        text: 'Отмена',
+        variant: 'secondary',
+      })
       @!button({ text: 'Далее: удобрения →', type: 'submit' })
     </div>
   @end

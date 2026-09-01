@@ -3,20 +3,31 @@
     <h1>Посевы</h1>
     <div class="tabs">
       <a
-        href="{{ route('seedings.index', {}, { qs: { status: 'active' } }) }}"
-        class="tab {{ currentStatus === 'active' ? 'is-active' : '' }}"
+        href="{{
+          route(
+            'seedings.index',
+            {},
+            { qs: { status: SEEDING_STATUS.ACTIVE } },
+          )
+        }}"
+        class="tab {{ currentStatus === SEEDING_STATUS.ACTIVE ? 'is-active' : '' }}"
       >
         Активные
       </a>
       <a
-        href="{{ route('seedings.index', {}, { qs: { status: 'completed' } }) }}"
-        class="tab {{ currentStatus === 'completed' ? 'is-active' : '' }}"
+        href="{{
+          route(
+            'seedings.index',
+            {},
+            { qs: { status: SEEDING_STATUS.COMPLETED } },
+          )
+        }}"
+        class="tab {{ currentStatus === SEEDING_STATUS.COMPLETED ? 'is-active' : '' }}"
       >
         Завершённые
       </a>
     </div>
   </div>
-
   @if(seedings.length)
     <div class="table-wrap">
       <table class="data">
@@ -26,6 +37,7 @@
             <th>Культура</th>
             <th>Дата старта</th>
             <th>Себестоимость</th>
+            <th>Урожай, т/га</th>
             <th>Действие</th>
           </tr>
         </thead>
@@ -35,9 +47,29 @@
               <td>{{ seeding.field.displayName }}</td>
               <td>{{ seeding.crop.name }}</td>
               <td>{{ seeding.startedAt.toFormat('dd.MM.yyyy') }}</td>
-              <td>{{ seeding.cost.toLocaleString() }} ₽</td>
               <td>
-                @!link({ route: 'seedings.show', routeParams: { id: seeding.id }, text: 'Открыть' })
+                {{ money(seeding.cost) }}
+                @if(seeding.seedCost !== null && seeding.fertilizerCost !== null)
+                  <p class="muted">
+                    семена
+                    {{ money(seeding.seedCost) }}
+                    · удобрения
+                    {{ money(seeding.fertilizerCost) }}
+                  </p>
+                @end
+              </td>
+              <td>
+                план
+                {{ seeding.expectedYieldPerHa === null ? '—' : seeding.expectedYieldPerHa }}
+                / факт
+                {{ seeding.actualYieldPerHa === null ? '—' : seeding.actualYieldPerHa }}
+              </td>
+              <td>
+                @!link({
+                  route: 'seedings.show',
+                  routeParams: { id: seeding.id },
+                  text: 'Открыть',
+                })
               </td>
             </tr>
           @end

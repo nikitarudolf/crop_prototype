@@ -4,7 +4,7 @@
       <h1>Посев: {{ seeding.crop.name }}</h1>
       <p class="lead">{{ seeding.field.displayName }} ({{ seeding.field.area }} га)</p>
     </div>
-    @if(seeding.status === 'active')
+    @if(seeding.status === SEEDING_STATUS.ACTIVE)
       <span class="badge badge-ok">Активный</span>
     @else
       <span class="badge">Завершён</span>
@@ -18,14 +18,32 @@
         <p class="stat-value">{{ seeding.startedAt.toFormat('dd.MM.yyyy') }}</p>
       </div>
       <div>
+        <span class="stat-label">Ожидаемый урожай</span>
+        <p class="stat-value">{{ expectedTons === null ? '—' : expectedTons + ' т' }}</p>
+      </div>
+      <div>
         <span class="stat-label">Себестоимость</span>
-        <p class="stat-value">{{ seeding.cost.toLocaleString() }} ₽</p>
+        <p class="stat-value">{{ money(seeding.cost) }}</p>
       </div>
       <div>
         <span class="stat-label">Вероятность</span>
         <p class="stat-value">{{ probabilityText }}</p>
       </div>
     </div>
+    @if(seeding.seedCost !== null && seeding.fertilizerCost !== null)
+      <p class="muted">
+        
+        Семена:
+        {{ money(seeding.seedCost) }}
+         · Удобрения:
+        {{ money(seeding.fertilizerCost) }}
+        @if(seeding.expectedYieldPerHa !== null)
+          · Ожидаемая урожайность:
+          {{ seeding.expectedYieldPerHa }}
+          т/га
+        @end
+      </p>
+    @end
   </div>
 
   <div class="panel">
@@ -43,17 +61,27 @@
       <p class="muted">Без удобрений</p>
     @end
   </div>
-
-  @if(seeding.status === 'active')
+  @if(seeding.status === SEEDING_STATUS.ACTIVE)
     <div class="notice">
       <h2>Уборка урожая и завершение</h2>
-      @form({ route: 'seedings.complete', routeParams: { id: seeding.id }, method: 'POST' })
+      @form({
+        route: 'seedings.complete',
+        routeParams: { id: seeding.id },
+        method: 'POST',
+      })
         <div class="form-stack">
           @field.root({ name: 'actualYieldPerHa' })
             @!field.label({ text: 'Фактический урожай (т/га)' })
-            @!input.control({ type: 'number', step: '0.01', min: '0', placeholder: 'Например: 3.5', required: true })
+            @!input.control({
+              type: 'number',
+              step: '0.01',
+              min: '0',
+              placeholder: 'Например: 3.5',
+              required: true,
+            })
             @!field.error()
           @end
+
           <div class="actions">
             @!button({ text: 'Завершить посев', type: 'submit' })
           </div>
@@ -66,8 +94,15 @@
       <dl class="dl">
         <dt>Дата завершения</dt>
         <dd>{{ seeding.finishedAt?.toFormat('dd.MM.yyyy') }}</dd>
+        <dt>Ожидаемый урожай</dt>
+        <dd>
+          {{ seeding.expectedYieldPerHa === null ? '—' : seeding.expectedYieldPerHa + ' т/га' }}{{ expectedTons === null ? '' : ' (' + expectedTons + ' т)' }}
+        </dd>
         <dt>Фактический урожай</dt>
-        <dd>{{ seeding.actualYieldPerHa }} т/га</dd>
+        <dd>
+          {{ seeding.actualYieldPerHa }}
+          т/га{{ actualTons === null ? '' : ' (' + actualTons + ' т)' }}
+        </dd>
       </dl>
     </div>
   @end

@@ -612,6 +612,29 @@ select[data-invalid='true'] {
   pointer-events: none;
 }
 
+.stage-cost {
+  flex: 0 0 auto;
+  align-self: center;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.stage-row .btn-ghost {
+  flex: 0 0 auto;
+}
+
+.stage-summary {
+  margin-top: 16px;
+  position: sticky;
+  bottom: 0;
+  background: var(--surface);
+}
+
+table.data .muted {
+  margin: 2px 0 0;
+  font-size: 12px;
+}
+
 @media (max-width: 640px) {
   .dl {
     grid-template-columns: 1fr;

@@ -1,5 +1,4 @@
 @let(errorMessages = Object.values(flashMessages.get('inputErrorsBag', {})).flat())
-
 @layout({ title: 'Новый посев — подтверждение' })
   <div class="page-header">
     <div>
@@ -13,7 +12,6 @@
     <span class="step is-done">2. Удобрения</span>
     <span class="step is-current">3. Итог</span>
   </div>
-
   @if(errorMessages.length)
     <div class="notice">
       @each(message in errorMessages)
@@ -21,10 +19,9 @@
       @end
     </div>
   @end
-
   @form({ route: 'seedings.store', routeParams: { fieldId: field.id }, method: 'POST' })
     <input type="hidden" name="cropId" value="{{ crop.id }}" />
-    @each(item in fertilizerPlan)
+    @each(item in cost.stages)
       <input type="hidden" name="stageName" value="{{ item.stageName }}" />
       <input type="hidden" name="fertilizerId" value="{{ item.fertilizer.id }}" />
       <input type="hidden" name="dosage" value="{{ item.dosagePerHa }}" />
@@ -41,12 +38,12 @@
 
     <div class="panel">
       <h2>План удобрений</h2>
-      @if(fertilizerPlan.length)
+      @if(cost.stages.length)
         <div class="list-plain">
-          @each(item in fertilizerPlan)
+          @each(item in cost.stages)
             <div>
               <span><strong>{{ item.stageName }}</strong>: {{ item.fertilizer.name }}</span>
-              <span>{{ item.dosagePerHa }} кг/га</span>
+              <span>{{ item.dosagePerHa }} кг/га · {{ money(item.cost) }}</span>
             </div>
           @end
         </div>
@@ -58,19 +55,44 @@
     <div class="panel">
       <div class="stats">
         <div>
-          <span class="stat-label">Вероятность успеха</span>
-          <p class="stat-value">{{ probabilityText }}</p>
+          <span class="stat-label">Ожидаемый урожай</span>
+          <p class="stat-value">{{ cost.expectedTons }} т</p>
         </div>
         <div>
           <span class="stat-label">Себестоимость</span>
-          <p class="stat-value">{{ cost.totalCost.toLocaleString() }} ₽</p>
+          <p class="stat-value">{{ money(cost.totalCost) }}</p>
+        </div>
+        <div>
+          <span class="stat-label">На гектар</span>
+          <p class="stat-value">{{ money(cost.costPerHa) }}</p>
+        </div>
+        <div>
+          <span class="stat-label">На тонну</span>
+          <p class="stat-value">{{ money(cost.costPerExpectedTon) }}</p>
         </div>
       </div>
-      <p class="muted">Семена: {{ cost.seedCost.toLocaleString() }} ₽ · Удобрения: {{ cost.fertilizerCost.toLocaleString() }} ₽</p>
+      <p class="muted">
+        Семена:
+        {{ money(cost.seedCost) }}
+        · Удобрения:
+        {{ money(cost.fertilizerCost) }}
+      </p>
     </div>
+    @if(probability === 'low')
+      <div class="notice">
+        <p>Вероятность низкая: {{ probabilityReason }}</p>
+      </div>
+    @else
+      <p class="muted">Вероятность высокая: {{ probabilityReason }}</p>
+    @end
 
     <div class="between">
-      @!button({ text: '← Изменить удобрения', type: 'button', variant: 'secondary', onclick: 'history.back()' })
+      @!button({
+        text: '← Изменить удобрения',
+        type: 'submit',
+        variant: 'secondary',
+        formaction: urlFor('seedings.new.step2.back', { fieldId: field.id }),
+      })
       @!button({ text: 'Подтвердить и засеять', type: 'submit' })
     </div>
   @end

@@ -8,7 +8,7 @@ import type { CostResult } from '#services/cost_calculation_service'
 import CropRecommendationService from '#services/crop_recommendation_service'
 import type { FertilizerPlanItem } from '#services/fertilizer_plan_service'
 import { FIELD_STATUS } from '#constants/field'
-import { SEEDING_STATUS } from '#constants/seeding'
+import { SEEDING_STATUS, PROBABILITY_LABEL } from '#constants/seeding'
 import type { ProbabilityLabel } from '#constants/seeding'
 import FieldOccupiedException from '#exceptions/field_occupied_exception'
 import SeedingAlreadyCompletedException from '#exceptions/seeding_already_completed_exception'
@@ -16,6 +16,7 @@ import db from '@adonisjs/lucid/services/db'
 import { errors } from '@adonisjs/lucid'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import { DateTime } from 'luxon'
+import { inject } from '@adonisjs/core'
 
 export interface SeedingPlanInput {
   cropId: number
@@ -34,12 +35,14 @@ export interface ResolvedPlan {
 export interface SeedingPreview extends ResolvedPlan {
   cost: CostResult
   probability: ProbabilityLabel
+  probabilityReason: string
 }
 
+@inject()
 export default class SeedingService {
   constructor(
-    private costService = new CostCalculationService(),
-    private cropService = new CropRecommendationService()
+    private costService: CostCalculationService,
+    private cropService: CropRecommendationService
   ) {}
 
   async getFreeFieldOrFail(fieldId: number, trx?: TransactionClientContract): Promise<Field> {
@@ -89,12 +92,17 @@ export default class SeedingService {
 
   async buildPreview(field: Field, input: SeedingPlanInput): Promise<SeedingPreview> {
     const { crop, fertilizerPlan } = await this.resolvePlan(input)
+    const recommendation = await this.cropService.getRecommendation(field.id, crop.id)
 
     return {
       crop,
       fertilizerPlan,
       cost: this.costService.calculate({ crop, fieldAreaHa: field.area, fertilizerPlan }),
-      probability: await this.cropService.getProbability(field.id, crop.id),
+      probability:
+        recommendation.suitability === 'recommended'
+          ? PROBABILITY_LABEL.HIGH
+          : PROBABILITY_LABEL.LOW,
+      probabilityReason: recommendation.reason,
     }
   }
 
@@ -104,7 +112,7 @@ export default class SeedingService {
       const { crop, fertilizerPlan } = await this.resolvePlan(input, trx)
 
       const cost = this.costService.calculate({ crop, fieldAreaHa: field.area, fertilizerPlan })
-      const probability = await this.cropService.getProbability(field.id, crop.id)
+      const probability = await this.cropService.getProbability(field.id, crop.id, trx)
 
       const seeding = await Seeding.create(
         {
@@ -114,6 +122,9 @@ export default class SeedingService {
           status: SEEDING_STATUS.ACTIVE,
           probability,
           cost: cost.totalCost,
+          seedCost: cost.seedCost,
+          fertilizerCost: cost.fertilizerCost,
+          expectedYieldPerHa: crop.avgYieldPerHa,
         },
         { client: trx }
       )

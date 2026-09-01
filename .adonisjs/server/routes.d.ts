@@ -33,6 +33,7 @@ export type ScannedRoutes = {
     'fertilizers.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'seedings.new.step1': { paramsTuple: [ParamValue]; params: {'fieldId': ParamValue} }
     'seedings.new.step2': { paramsTuple: [ParamValue]; params: {'fieldId': ParamValue} }
+    'seedings.new.step2.back': { paramsTuple: [ParamValue]; params: {'fieldId': ParamValue} }
     'seedings.new.step3': { paramsTuple: [ParamValue]; params: {'fieldId': ParamValue} }
     'seedings.store': { paramsTuple: [ParamValue]; params: {'fieldId': ParamValue} }
     'seedings.index': { paramsTuple?: []; params?: {} }
@@ -88,6 +89,7 @@ export type ScannedRoutes = {
     'fields.store': { paramsTuple?: []; params?: {} }
     'crops.store': { paramsTuple?: []; params?: {} }
     'fertilizers.store': { paramsTuple?: []; params?: {} }
+    'seedings.new.step2.back': { paramsTuple: [ParamValue]; params: {'fieldId': ParamValue} }
     'seedings.new.step3': { paramsTuple: [ParamValue]; params: {'fieldId': ParamValue} }
     'seedings.store': { paramsTuple: [ParamValue]; params: {'fieldId': ParamValue} }
     'seedings.complete': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

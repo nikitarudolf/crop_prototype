@@ -4,7 +4,12 @@
       <h1>{{ field.displayName }}</h1>
     </div>
     <div class="actions">
-      @!link({ route: 'fields.edit', routeParams: { id: field.id }, text: 'Изменить', variant: 'secondary' })
+      @!link({
+        route: 'fields.edit',
+        routeParams: { id: field.id },
+        text: 'Изменить',
+        variant: 'secondary',
+      })
       @!link({ route: 'fields.index', text: 'К списку', variant: 'secondary' })
     </div>
   </div>
@@ -14,7 +19,7 @@
       <dt>Площадь</dt>
       <dd>{{ field.area }} га</dd>
       <dt>Тип почвы</dt>
-      <dd>{{ field.type }}</dd>
+      <dd>{{ fieldTypeLabel(field.type) }}</dd>
       <dt>Статус</dt>
       <dd>
         @if(field.status === FIELD_STATUS.FREE)
@@ -30,12 +35,22 @@
 
   <div class="panel">
     @if(field.status === FIELD_STATUS.FREE)
-      @!link({ route: 'seedings.new.step1', routeParams: { fieldId: field.id }, text: 'Начать посев', variant: 'primary' })
+      @!link({
+        route: 'seedings.new.step1',
+        routeParams: { fieldId: field.id },
+        text: 'Начать посев',
+        variant: 'primary',
+      })
     @else
       <p class="muted">Поле занято активным посевом</p>
       @if(activeSeeding)
         <div class="actions stack">
-          @!link({ route: 'seedings.show', routeParams: { id: activeSeeding.id }, text: 'Перейти к посеву', variant: 'secondary' })
+          @!link({
+            route: 'seedings.show',
+            routeParams: { id: activeSeeding.id },
+            text: 'Перейти к посеву',
+            variant: 'secondary',
+          })
         </div>
       @end
     @end
@@ -52,6 +67,7 @@
               <th>Дата начала</th>
               <th>Статус</th>
               <th>Себестоимость</th>
+              <th>Урожай, т/га</th>
               <th>Действие</th>
             </tr>
           </thead>
@@ -61,15 +77,35 @@
                 <td>{{ seeding.crop.name }}</td>
                 <td>{{ seeding.startedAt.toFormat('dd.MM.yyyy') }}</td>
                 <td>
-                  @if(seeding.status === 'active')
+                  @if(seeding.status === SEEDING_STATUS.ACTIVE)
                     <span class="badge badge-ok">Активный</span>
                   @else
                     <span class="badge">Завершён</span>
                   @end
                 </td>
-                <td>{{ seeding.cost.toLocaleString() }} ₽</td>
                 <td>
-                  @!link({ route: 'seedings.show', routeParams: { id: seeding.id }, text: 'Открыть' })
+                  {{ money(seeding.cost) }}
+                  @if(seeding.seedCost !== null && seeding.fertilizerCost !== null)
+                    <p class="muted">
+                      семена
+                      {{ money(seeding.seedCost) }}
+                      · удобрения
+                      {{ money(seeding.fertilizerCost) }}
+                    </p>
+                  @end
+                </td>
+                <td>
+                  план
+                  {{ seeding.expectedYieldPerHa === null ? '—' : seeding.expectedYieldPerHa }}
+                  / факт
+                  {{ seeding.actualYieldPerHa === null ? '—' : seeding.actualYieldPerHa }}
+                </td>
+                <td>
+                  @!link({
+                    route: 'seedings.show',
+                    routeParams: { id: seeding.id },
+                    text: 'Открыть',
+                  })
                 </td>
               </tr>
             @end
@@ -80,7 +116,6 @@
       <p class="empty">Посевов пока не было</p>
     @end
   </div>
-
   @form({ route: 'fields.destroy', routeParams: { id: field.id }, method: 'DELETE' })
     @!button({ text: 'Удалить поле', variant: 'danger', type: 'submit' })
   @end
