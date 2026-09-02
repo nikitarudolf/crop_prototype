@@ -13,6 +13,15 @@ const dbConfig = defineConfig({
       connection: {
         filename: app.makePath(env.get('SQLITE_DB_PATH')),
       },
+      pool: {
+        afterCreate: (
+          connection: { pragma: (statement: string) => void },
+          done: (error: Error | null, connection: unknown) => void
+        ) => {
+          connection.pragma('foreign_keys = ON')
+          done(null, connection)
+        },
+      },
       useNullAsDefault: true,
       migrations: {
         naturalSort: true,
