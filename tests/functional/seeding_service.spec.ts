@@ -16,7 +16,12 @@ function makeService() {
 test.group('SeedingService', () => {
   test('cannot start a seeding on an already occupied field', async ({ assert }) => {
     const field = await Field.create({ area: 10, type: 'loam', status: FIELD_STATUS.OCCUPIED })
-    const crop = await Crop.create({ name: 'Пшеница', price: 180, avgYieldPerHa: 3.5 })
+    const crop = await Crop.create({
+      name: 'Пшеница',
+      family: 'cereal',
+      price: 180,
+      avgYieldPerHa: 3.5,
+    })
     const service = makeService()
 
     await assert.rejects(
@@ -29,7 +34,12 @@ test.group('SeedingService', () => {
     assert,
   }) => {
     const field = await Field.create({ area: 10, type: 'loam', status: FIELD_STATUS.FREE })
-    const crop = await Crop.create({ name: 'Пшеница', price: 180, avgYieldPerHa: 3.5 })
+    const crop = await Crop.create({
+      name: 'Пшеница',
+      family: 'cereal',
+      price: 180,
+      avgYieldPerHa: 3.5,
+    })
     const fertilizer = await Fertilizer.create({ name: 'Аммофос', price: 2.2 })
     const service = makeService()
 
@@ -48,7 +58,12 @@ test.group('SeedingService', () => {
 
   test('cannot complete a seeding twice', async ({ assert }) => {
     const field = await Field.create({ area: 10, type: 'loam', status: FIELD_STATUS.FREE })
-    const crop = await Crop.create({ name: 'Пшеница', price: 180, avgYieldPerHa: 3.5 })
+    const crop = await Crop.create({
+      name: 'Пшеница',
+      family: 'cereal',
+      price: 180,
+      avgYieldPerHa: 3.5,
+    })
     const service = makeService()
 
     const seeding = await service.createSeeding(field.id, { cropId: crop.id, stages: [] })

@@ -82,12 +82,12 @@
         {{ money(cost.fertilizerCost) }}
       </p>
     </div>
-    @if(probability === 'low')
-      <div class="notice">
-        <p>Вероятность низкая: {{ probabilityReason }}</p>
-      </div>
-    @else
+    @if(probability === 'high')
       <p class="muted">Вероятность высокая: {{ probabilityReason }}</p>
+    @else
+      <div class="notice">
+        <p>Вероятность {{ probabilityText.toLowerCase() }}: {{ probabilityReason }}</p>
+      </div>
     @end
 
     <div class="between">

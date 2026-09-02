@@ -46,8 +46,10 @@
             </div>
 
             <div>
-              @if(item.suitability === 'recommended')
+              @if(item.probability === 'high')
                 <span class="badge badge-ok">Рекомендуется</span>
+              @elseif(item.probability === 'medium')
+                <span class="badge">С оговорками</span>
               @else
                 <span class="badge badge-warn">Не рекомендуется</span>
               @end

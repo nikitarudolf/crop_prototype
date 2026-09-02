@@ -8,7 +8,7 @@ import type { CostResult } from '#services/cost_calculation_service'
 import CropRecommendationService from '#services/crop_recommendation_service'
 import type { FertilizerPlanItem } from '#services/fertilizer_plan_service'
 import { FIELD_STATUS } from '#constants/field'
-import { SEEDING_STATUS, PROBABILITY_LABEL } from '#constants/seeding'
+import { SEEDING_STATUS } from '#constants/seeding'
 import type { ProbabilityLabel } from '#constants/seeding'
 import FieldOccupiedException from '#exceptions/field_occupied_exception'
 import SeedingAlreadyCompletedException from '#exceptions/seeding_already_completed_exception'
@@ -46,13 +46,9 @@ export default class SeedingService {
   ) {}
 
   async getFreeFieldOrFail(fieldId: number, trx?: TransactionClientContract): Promise<Field> {
-    const query = Field.query(trx ? { client: trx } : {}).where('id', fieldId)
-
-    if (trx) {
-      query.forUpdate()
-    }
-
-    const field = await query.firstOrFail()
+    const field = await Field.query(trx ? { client: trx } : {})
+      .where('id', fieldId)
+      .firstOrFail()
 
     if (field.status !== FIELD_STATUS.FREE) {
       throw new FieldOccupiedException(field.id)
@@ -92,16 +88,13 @@ export default class SeedingService {
 
   async buildPreview(field: Field, input: SeedingPlanInput): Promise<SeedingPreview> {
     const { crop, fertilizerPlan } = await this.resolvePlan(input)
-    const recommendation = await this.cropService.getRecommendation(field.id, crop.id)
+    const recommendation = await this.cropService.getRecommendation(field, crop.id)
 
     return {
       crop,
       fertilizerPlan,
       cost: this.costService.calculate({ crop, fieldAreaHa: field.area, fertilizerPlan }),
-      probability:
-        recommendation.suitability === 'recommended'
-          ? PROBABILITY_LABEL.HIGH
-          : PROBABILITY_LABEL.LOW,
+      probability: recommendation.probability,
       probabilityReason: recommendation.reason,
     }
   }
@@ -112,7 +105,7 @@ export default class SeedingService {
       const { crop, fertilizerPlan } = await this.resolvePlan(input, trx)
 
       const cost = this.costService.calculate({ crop, fieldAreaHa: field.area, fertilizerPlan })
-      const probability = await this.cropService.getProbability(field.id, crop.id, trx)
+      const probability = await this.cropService.getProbability(field, crop.id, trx)
 
       const seeding = await Seeding.create(
         {
@@ -148,10 +141,7 @@ export default class SeedingService {
 
   async completeSeeding(seedingId: number, actualYieldPerHa: number): Promise<Seeding> {
     return db.transaction(async (trx) => {
-      const seeding = await Seeding.query({ client: trx })
-        .where('id', seedingId)
-        .forUpdate()
-        .firstOrFail()
+      const seeding = await Seeding.query({ client: trx }).where('id', seedingId).firstOrFail()
 
       if (seeding.status !== SEEDING_STATUS.ACTIVE) {
         throw new SeedingAlreadyCompletedException(seeding.id)

@@ -75,7 +75,7 @@ export default class SeedingsController {
 
   async newStep1({ params, request, view }: HttpContext) {
     const field = await this.seedingService.getFreeFieldOrFail(params.fieldId)
-    const recommendations = await this.cropService.getRecommendedCrops(field.id)
+    const recommendations = await this.cropService.getRecommendedCrops(field)
 
     const items = recommendations.map((item) => ({
       ...item,

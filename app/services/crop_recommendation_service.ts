@@ -1,85 +1,113 @@
 import Crop from '#models/crop'
+import type Field from '#models/field'
 import Seeding from '#models/seeding'
+import { PREFERRED_SOILS, cropFamilyText } from '#constants/crop'
+import type { CropFamily } from '#constants/crop'
+import { fieldTypeText } from '#constants/field'
 import { SEEDING_STATUS, PROBABILITY_LABEL } from '#constants/seeding'
 import type { ProbabilityLabel } from '#constants/seeding'
-import { errors } from '@adonisjs/lucid'
 import type { TransactionClientContract } from '@adonisjs/lucid/types/database'
-
-export type CropSuitability = 'recommended' | 'not_recommended'
 
 export interface CropRecommendation {
   crop: Crop
-  suitability: CropSuitability
+  probability: ProbabilityLabel
   reason: string
 }
 
+const PROBABILITY_ORDER: ProbabilityLabel[] = [
+  PROBABILITY_LABEL.HIGH,
+  PROBABILITY_LABEL.MEDIUM,
+  PROBABILITY_LABEL.LOW,
+]
+
 export default class CropRecommendationService {
   async getRecommendedCrops(
-    fieldId: number,
+    field: Field,
     trx?: TransactionClientContract
   ): Promise<CropRecommendation[]> {
     const options = trx ? { client: trx } : {}
 
     const crops = await Crop.all(options)
+    const previousFamily = await this.loadPreviousFamily(field, trx)
 
-    const lastCompletedSeeding = await Seeding.query(options)
-      .where('fieldId', fieldId)
-      .andWhere('status', SEEDING_STATUS.COMPLETED)
-      .orderBy('finishedAt', 'desc')
-      .first()
+    const recommendations = crops.map((crop) => this.evaluate(crop, field, previousFamily))
 
-    const recommendations: CropRecommendation[] = crops.map((crop) => {
-      if (!lastCompletedSeeding) {
-        return {
-          crop,
-          suitability: 'recommended',
-          reason: 'История поля пуста',
-        }
-      }
-
-      if (lastCompletedSeeding.cropId === crop.id) {
-        return {
-          crop,
-          suitability: 'not_recommended',
-          reason: 'Эта культура уже росла на поле в прошлом сезоне',
-        }
-      }
-
-      return {
-        crop,
-        suitability: 'recommended',
-        reason: 'Подходит для этого поля',
-      }
-    })
-
-    return recommendations.sort((a, b) => {
-      if (a.suitability === b.suitability) return 0
-      return a.suitability === 'recommended' ? -1 : 1
-    })
+    return recommendations.sort(
+      (a, b) => PROBABILITY_ORDER.indexOf(a.probability) - PROBABILITY_ORDER.indexOf(b.probability)
+    )
   }
 
   async getRecommendation(
-    fieldId: number,
+    field: Field,
     cropId: number,
     trx?: TransactionClientContract
   ): Promise<CropRecommendation> {
-    const recommendations = await this.getRecommendedCrops(fieldId, trx)
-    const current = recommendations.find((item) => item.crop.id === cropId)
+    const options = trx ? { client: trx } : {}
 
-    if (!current) {
-      throw new errors.E_ROW_NOT_FOUND()
-    }
+    const crop = await Crop.findOrFail(cropId, options)
+    const previousFamily = await this.loadPreviousFamily(field, trx)
 
-    return current
+    return this.evaluate(crop, field, previousFamily)
   }
 
   async getProbability(
-    fieldId: number,
+    field: Field,
     cropId: number,
     trx?: TransactionClientContract
   ): Promise<ProbabilityLabel> {
-    const { suitability } = await this.getRecommendation(fieldId, cropId, trx)
+    const { probability } = await this.getRecommendation(field, cropId, trx)
 
-    return suitability === 'recommended' ? PROBABILITY_LABEL.HIGH : PROBABILITY_LABEL.LOW
+    return probability
+  }
+
+  private async loadPreviousFamily(
+    field: Field,
+    trx?: TransactionClientContract
+  ): Promise<CropFamily | null> {
+    const lastCompletedSeeding = await Seeding.query(trx ? { client: trx } : {})
+      .where('fieldId', field.id)
+      .andWhere('status', SEEDING_STATUS.COMPLETED)
+      .preload('crop')
+      .orderBy('finishedAt', 'desc')
+      .first()
+
+    return lastCompletedSeeding?.crop?.family ?? null
+  }
+
+  private evaluate(
+    crop: Crop,
+    field: Field,
+    previousFamily: CropFamily | null
+  ): CropRecommendation {
+    const problems: string[] = []
+
+    if (crop.family !== 'other' && previousFamily === crop.family) {
+      problems.push(
+        `в прошлом сезоне на поле росла культура того же семейства (${cropFamilyText(crop.family).toLowerCase()})`
+      )
+    }
+
+    if (!PREFERRED_SOILS[crop.family].includes(field.type)) {
+      problems.push(`${fieldTypeText(field.type).toLowerCase()} плохо подходит для этого семейства`)
+    }
+
+    if (problems.length === 0) {
+      return {
+        crop,
+        probability: PROBABILITY_LABEL.HIGH,
+        reason:
+          previousFamily === null
+            ? 'История поля пуста, почва подходит'
+            : 'Подходит по почве и севообороту',
+      }
+    }
+
+    const reason = problems.join('; ')
+
+    return {
+      crop,
+      probability: problems.length === 1 ? PROBABILITY_LABEL.MEDIUM : PROBABILITY_LABEL.LOW,
+      reason: reason.charAt(0).toUpperCase() + reason.slice(1),
+    }
   }
 }
