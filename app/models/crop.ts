@@ -1,5 +1,6 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
+import type { CropFamily } from '#constants/crop'
 import { hasMany } from '@adonisjs/lucid/orm'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
 import Seeding from '#models/seeding'
@@ -10,6 +11,9 @@ export default class Crop extends BaseModel {
 
   @column()
   declare name: string
+
+  @column()
+  declare family: CropFamily
 
   @column({ consume: (value: string | number) => Number(value) })
   declare price: number

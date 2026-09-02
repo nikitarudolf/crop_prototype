@@ -1,6 +1,7 @@
 import Crop from '#models/crop'
 import Seeding from '#models/seeding'
 import { cropValidator } from '#validators/crop'
+import { CROP_FAMILIES } from '#constants/crop'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class CropsController {
@@ -10,7 +11,7 @@ export default class CropsController {
   }
 
   async create({ view }: HttpContext) {
-    return view.render('pages/crops/create')
+    return view.render('pages/crops/create', { cropFamilies: CROP_FAMILIES })
   }
 
   async store({ request, response }: HttpContext) {
@@ -26,7 +27,7 @@ export default class CropsController {
 
   async edit({ params, view }: HttpContext) {
     const crop = await Crop.findOrFail(params.id)
-    return view.render('pages/crops/edit', { crop })
+    return view.render('pages/crops/edit', { crop, cropFamilies: CROP_FAMILIES })
   }
 
   async update({ params, request, response }: HttpContext) {

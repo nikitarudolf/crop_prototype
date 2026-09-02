@@ -10,6 +10,17 @@
           @!input.control({ value: crop.name })
           @!field.error()
         @end
+        @field.root({ name: 'family' })
+          @!field.label({ text: 'Семейство' })
+          @!select.control({
+            options: cropFamilies.map((f) => ({
+              value: f,
+              name: cropFamilyLabel(f),
+              isSelected: !old('family') && f === crop.family,
+            })),
+          })
+          @!field.error()
+        @end
         @field.root({ name: 'price' })
           @!field.label({ text: 'Цена семян (Br/га)' })
           @!input.control({

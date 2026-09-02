@@ -8,12 +8,22 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
 export class CropSchema extends BaseModel {
-  static $columns = ['avgYieldPerHa', 'createdAt', 'id', 'name', 'price', 'updatedAt'] as const
+  static $columns = [
+    'avgYieldPerHa',
+    'createdAt',
+    'family',
+    'id',
+    'name',
+    'price',
+    'updatedAt',
+  ] as const
   $columns = CropSchema.$columns
   @column()
   declare avgYieldPerHa: number
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+  @column()
+  declare family: string
   @column({ isPrimary: true })
   declare id: number
   @column()

@@ -10,6 +10,7 @@
           <tr>
             <th>ID</th>
             <th>Название</th>
+            <th>Семейство</th>
             <th>Цена семян, Br/га</th>
             <th>Урожайность, т/га</th>
             <th>Действия</th>
@@ -20,6 +21,7 @@
             <tr>
               <td>{{ crop.id }}</td>
               <td>{{ crop.name }}</td>
+              <td>{{ cropFamilyLabel(crop.family) }}</td>
               <td>{{ crop.price }}</td>
               <td>{{ crop.avgYieldPerHa }}</td>
               <td>
