@@ -37,10 +37,20 @@ const FERTILIZER_PLANS: Record<string, PlanTemplateItem[]> = {
 export default class FertilizerPlanService {
   async getRecommendedPlan(cropName: string): Promise<FertilizerPlanItem[]> {
     const template = FERTILIZER_PLANS[cropName] ?? []
+    if (template.length === 0) {
+      return []
+    }
+
+    const names = [...new Set(template.map((item) => item.fertilizerName))]
+    const fertilizers = await Fertilizer.query().whereIn('name', names)
+    const fertilizersByName = new Map(
+      fertilizers.map((fertilizer) => [fertilizer.name, fertilizer])
+    )
+
     const plan: FertilizerPlanItem[] = []
 
     for (const item of template) {
-      const fertilizer = await Fertilizer.query().where('name', item.fertilizerName).first()
+      const fertilizer = fertilizersByName.get(item.fertilizerName)
 
       if (!fertilizer) {
         logger.warn(
