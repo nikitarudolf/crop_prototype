@@ -21,10 +21,14 @@
   @end
   @form({ route: 'seedings.store', routeParams: { fieldId: field.id }, method: 'POST' })
     <input type="hidden" name="cropId" value="{{ crop.id }}" />
-    @each(item in cost.stages)
-      <input type="hidden" name="stageName" value="{{ item.stageName }}" />
-      <input type="hidden" name="fertilizerId" value="{{ item.fertilizer.id }}" />
-      <input type="hidden" name="dosage" value="{{ item.dosagePerHa }}" />
+    @each((item, index) in cost.stages)
+      <input type="hidden" name="stages[{{ index }}][stageName]" value="{{ item.stageName }}" />
+      <input
+        type="hidden"
+        name="stages[{{ index }}][fertilizerId]"
+        value="{{ item.fertilizer.id }}"
+      />
+      <input type="hidden" name="stages[{{ index }}][dosagePerHa]" value="{{ item.dosagePerHa }}" />
     @end
 
     <div class="panel">

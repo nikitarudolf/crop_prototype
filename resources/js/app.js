@@ -29,8 +29,8 @@ Alpine.data('stagePlan', function (config) {
 
     rowCost(row) {
       const price = Number(this.prices[row.fertilizerId]) || 0
-      const dosage = Number(row.dosage) || 0
-      return price * dosage * this.area
+      const dosagePerHa = Number(row.dosagePerHa) || 0
+      return price * dosagePerHa * this.area
     },
     get fertilizerCost() {
       return this.rows.reduce((sum, row) => sum + this.rowCost(row), 0)
@@ -46,7 +46,7 @@ Alpine.data('stagePlan', function (config) {
         uid: this.nextUid++,
         stageName: '',
         fertilizerId: this.defaultFertilizerId,
-        dosage: '',
+        dosagePerHa: '',
       })
     },
     removeRow(index) {

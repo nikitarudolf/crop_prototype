@@ -11,25 +11,25 @@ import { seedingPlanValidator, completeSeedingValidator } from '#validators/seed
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 
-interface RawPlanRow {
-  stageName: string
+interface RawStageRow {
+  stageName?: string
   fertilizerId?: string
-  dosage?: string
+  dosagePerHa?: string
 }
 
 interface StagePlanRow {
   uid: number
   stageName: string
   fertilizerId: string
-  dosage: string | number
+  dosagePerHa: string | number
 }
 
-function toArray<T = string>(value: unknown): T[] {
-  if (value === undefined || value === null) {
+function toStageRows(value: unknown): RawStageRow[] {
+  if (!Array.isArray(value)) {
     return []
   }
 
-  return (Array.isArray(value) ? value : [value]) as T[]
+  return value.filter((row): row is RawStageRow => typeof row === 'object' && row !== null)
 }
 
 @inject()
@@ -165,16 +165,16 @@ export default class SeedingsController {
     session: HttpContext['session'],
     crop: Crop
   ): Promise<{ rows: StagePlanRow[]; showEmptyPlanNotice: boolean }> {
-    const flashed = this.readPlanRows((key) => session.flashMessages.get(key, []))
-    const submitted = flashed.length ? flashed : this.readPlanRows((key) => request.input(key, []))
+    const flashed = toStageRows(session.flashMessages.get('stages'))
+    const submitted = flashed.length ? flashed : toStageRows(request.input('stages'))
 
     if (submitted.length) {
       return {
         rows: submitted.map((row, index) => ({
           uid: index,
-          stageName: row.stageName,
+          stageName: row.stageName ?? '',
           fertilizerId: String(row.fertilizerId ?? ''),
-          dosage: row.dosage ?? '',
+          dosagePerHa: row.dosagePerHa ?? '',
         })),
         showEmptyPlanNotice: false,
       }
@@ -187,34 +187,16 @@ export default class SeedingsController {
         uid: index,
         stageName: item.stageName,
         fertilizerId: String(item.fertilizer.id),
-        dosage: item.dosagePerHa,
+        dosagePerHa: item.dosagePerHa,
       })),
       showEmptyPlanNotice: plan.length === 0,
     }
   }
 
   private parsePlanRequest(request: HttpContext['request']): Promise<SeedingPlanInput> {
-    const rows = this.readPlanRows((key) => request.input(key, []))
-
     return seedingPlanValidator.validate({
       cropId: request.input('cropId'),
-      stages: rows.map((row) => ({
-        stageName: row.stageName,
-        fertilizerId: row.fertilizerId,
-        dosagePerHa: row.dosage,
-      })),
+      stages: request.input('stages', []),
     })
-  }
-
-  private readPlanRows(read: (key: string) => unknown): RawPlanRow[] {
-    const stageNames = toArray(read('stageName'))
-    const fertilizerIds = toArray(read('fertilizerId'))
-    const dosages = toArray(read('dosage'))
-
-    return stageNames.map((stageName, index) => ({
-      stageName,
-      fertilizerId: fertilizerIds[index],
-      dosage: dosages[index],
-    }))
   }
 }

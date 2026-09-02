@@ -28,6 +28,10 @@ const bodyParserConfig = defineConfig({
      */
     trimWhitespaces: true,
 
+    queryString: {
+      arrayLimit: 100,
+    },
+
     /**
      * Content types that should be parsed as form data.
      */
