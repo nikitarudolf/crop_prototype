@@ -1,8 +1,15 @@
 @let(buttonTextFromSlot = await $slots.main())
-@let(buttonText = buttonTextFromSlot.trim() ? buttonTextFromSlot : ($props.get('text') ?? ''))
+@let(buttonText = buttonTextFromSlot.trim()
+  ? html.safe(buttonTextFromSlot)
+  : ($props.get('text') ?? ''))
 @let(variant = $props.get('variant') ?? 'primary')
 @let(classes = ['btn', `btn-${variant}`])
 
-<button {{ $props.except(['text', 'variant']).merge({ class: classes, type: $props.get('type') ?? 'submit' }).toAttrs() }}>
-  {{{ buttonText }}}
+<button {{
+  $props
+    .except(['text', 'variant'])
+    .merge({ class: classes, type: $props.get('type') ?? 'submit' })
+    .toAttrs()
+}}>
+  {{ buttonText }}
 </button>

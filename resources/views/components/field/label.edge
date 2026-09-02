@@ -1,5 +1,5 @@
 @let(labelTextFromSlot = await $slots.main())
-@let(labelText = labelTextFromSlot.trim() ? labelTextFromSlot : $props.get('text'))
+@let(labelText = labelTextFromSlot.trim() ? html.safe(labelTextFromSlot) : $props.get('text'))
 @let(classes = [])
 
 <label {{
@@ -12,5 +12,5 @@
     })
     .toAttrs()
 }}>
-  {{{ labelText }}}
+  {{ labelText }}
 </label>

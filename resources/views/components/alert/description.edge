@@ -1,7 +1,9 @@
 @let(descriptionFromSlot = await $slots.main())
-@let(description = descriptionFromSlot.trim() ? descriptionFromSlot : $props.get('text'))
+@let(description = descriptionFromSlot.trim()
+  ? html.safe(descriptionFromSlot)
+  : $props.get('text'))
 @let(classes = [])
 
 <section {{ $props.except(['text']).merge({ class: classes }).toAttrs() }}>
-  {{{ description }}}
+  {{ description }}
 </section>
