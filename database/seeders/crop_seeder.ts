@@ -3,7 +3,7 @@ import { BaseSeeder } from '@adonisjs/lucid/seeders'
 
 export default class extends BaseSeeder {
   async run() {
-    await Crop.createMany([
+    await Crop.updateOrCreateMany('name', [
       { name: 'Пшеница', family: 'cereal', price: 180, avgYieldPerHa: 3.5 },
       { name: 'Кукуруза', family: 'cereal', price: 320, avgYieldPerHa: 6.0 },
       { name: 'Соя', family: 'legume', price: 260, avgYieldPerHa: 2.0 },
