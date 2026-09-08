@@ -58,63 +58,11 @@
 
   <div class="panel">
     <h2>История посевов</h2>
-    @if(seedingHistory.length)
-      <div class="table-wrap">
-        <table class="data">
-          <thead>
-            <tr>
-              <th>Культура</th>
-              <th>Дата начала</th>
-              <th>Статус</th>
-              <th>Себестоимость</th>
-              <th>Урожай, т/га</th>
-              <th>Действие</th>
-            </tr>
-          </thead>
-          <tbody>
-            @each(seeding in seedingHistory)
-              <tr>
-                <td>{{ seeding.crop.name }}</td>
-                <td>{{ seeding.startedAt.toFormat('dd.MM.yyyy') }}</td>
-                <td>
-                  @if(seeding.status === SEEDING_STATUS.ACTIVE)
-                    <span class="badge badge-ok">Активный</span>
-                  @else
-                    <span class="badge">Завершён</span>
-                  @end
-                </td>
-                <td>
-                  {{ money(seeding.cost) }}
-                  @if(seeding.seedCost !== null && seeding.fertilizerCost !== null)
-                    <p class="muted">
-                      семена
-                      {{ money(seeding.seedCost) }}
-                      · удобрения
-                      {{ money(seeding.fertilizerCost) }}
-                    </p>
-                  @end
-                </td>
-                <td>
-                  план
-                  {{ seeding.expectedYieldPerHa === null ? '—' : seeding.expectedYieldPerHa }}
-                  / факт
-                  {{ seeding.actualYieldPerHa === null ? '—' : seeding.actualYieldPerHa }}
-                </td>
-                <td>
-                  @!link({
-                    route: 'seedings.show',
-                    routeParams: { id: seeding.id },
-                    text: 'Открыть',
-                  })
-                </td>
-              </tr>
-            @end
-          </tbody>
-        </table>
-      </div>
-    @else
-      <p class="empty">Посевов пока не было</p>
-    @end
+    @!seedingsTable({
+      seedings: seedingHistory,
+      showStatus: true,
+      empty: 'Посевов пока не было',
+    })
   </div>
   @form({ route: 'fields.destroy', routeParams: { id: field.id }, method: 'DELETE' })
     @!button({ text: 'Удалить поле', variant: 'danger', type: 'submit' })

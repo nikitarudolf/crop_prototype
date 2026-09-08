@@ -1,0 +1,71 @@
+@let(rows = $props.get('seedings'))
+@let(showField = $props.get('showField'))
+@let(showStatus = $props.get('showStatus'))
+
+@if(rows.length)
+  <div class="table-wrap">
+    <table class="data">
+      <thead>
+        <tr>
+          @if(showField)
+            <th>Поле</th>
+          @end
+          <th>Культура</th>
+          <th>Дата начала</th>
+          @if(showStatus)
+            <th>Статус</th>
+          @end
+          <th>Себестоимость</th>
+          <th>Урожай, т/га</th>
+          <th>Действие</th>
+        </tr>
+      </thead>
+      <tbody>
+        @each(seeding in rows)
+          <tr>
+            @if(showField)
+              <td>{{ seeding.field.displayName }}</td>
+            @end
+            <td>{{ seeding.crop.name }}</td>
+            <td>{{ seeding.startedAt.toFormat('dd.MM.yyyy') }}</td>
+            @if(showStatus)
+              <td>
+                @if(seeding.status === SEEDING_STATUS.ACTIVE)
+                  <span class="badge badge-ok">Активный</span>
+                @else
+                  <span class="badge">Завершён</span>
+                @end
+              </td>
+            @end
+            <td>
+              {{ money(seeding.cost) }}
+              @if(seeding.seedCost !== null && seeding.fertilizerCost !== null)
+                <p class="muted">
+                  семена
+                  {{ money(seeding.seedCost) }}
+                  · удобрения
+                  {{ money(seeding.fertilizerCost) }}
+                </p>
+              @end
+            </td>
+            <td>
+              план
+              {{ seeding.expectedYieldPerHa === null ? '—' : seeding.expectedYieldPerHa }}
+              / факт
+              {{ seeding.actualYieldPerHa === null ? '—' : seeding.actualYieldPerHa }}
+            </td>
+            <td>
+              @!link({
+                route: 'seedings.show',
+                routeParams: { id: seeding.id },
+                text: 'Открыть',
+              })
+            </td>
+          </tr>
+        @end
+      </tbody>
+    </table>
+  </div>
+@else
+  <p class="empty">{{ $props.get('empty') }}</p>
+@end
