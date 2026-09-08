@@ -2,16 +2,10 @@ import { test } from '@japa/runner'
 import Crop from '#models/crop'
 import Fertilizer from '#models/fertilizer'
 import Field from '#models/field'
-import SeedingService from '#services/seeding_service'
-import CostCalculationService from '#services/cost_calculation_service'
-import CropRecommendationService from '#services/crop_recommendation_service'
+import { createSeeding, completeSeeding } from '#services/seeding_service'
 import FieldOccupiedException from '#exceptions/field_occupied_exception'
 import SeedingAlreadyCompletedException from '#exceptions/seeding_already_completed_exception'
 import { FIELD_STATUS } from '#constants/field'
-
-function makeService() {
-  return new SeedingService(new CostCalculationService(), new CropRecommendationService())
-}
 
 test.group('SeedingService', () => {
   test('cannot start a seeding on an already occupied field', async ({ assert }) => {
@@ -22,10 +16,9 @@ test.group('SeedingService', () => {
       price: 180,
       avgYieldPerHa: 3.5,
     })
-    const service = makeService()
 
     await assert.rejects(
-      () => service.createSeeding(field.id, { cropId: crop.id, stages: [] }),
+      () => createSeeding(field.id, { cropId: crop.id, stages: [] }),
       FieldOccupiedException
     )
   })
@@ -41,9 +34,8 @@ test.group('SeedingService', () => {
       avgYieldPerHa: 3.5,
     })
     const fertilizer = await Fertilizer.create({ name: 'Аммофос', price: 2.2 })
-    const service = makeService()
 
-    const seeding = await service.createSeeding(field.id, {
+    const seeding = await createSeeding(field.id, {
       cropId: crop.id,
       stages: [{ stageName: 'Перед посевом', fertilizerId: fertilizer.id, dosagePerHa: 100 }],
     })
@@ -64,14 +56,10 @@ test.group('SeedingService', () => {
       price: 180,
       avgYieldPerHa: 3.5,
     })
-    const service = makeService()
 
-    const seeding = await service.createSeeding(field.id, { cropId: crop.id, stages: [] })
-    await service.completeSeeding(seeding.id, 3.2)
+    const seeding = await createSeeding(field.id, { cropId: crop.id, stages: [] })
+    await completeSeeding(seeding.id, 3.2)
 
-    await assert.rejects(
-      () => service.completeSeeding(seeding.id, 3.2),
-      SeedingAlreadyCompletedException
-    )
+    await assert.rejects(() => completeSeeding(seeding.id, 3.2), SeedingAlreadyCompletedException)
   })
 })

@@ -19,7 +19,7 @@
       <dt>Площадь</dt>
       <dd>{{ field.area }} га</dd>
       <dt>Тип почвы</dt>
-      <dd>{{ fieldTypeLabel(field.type) }}</dd>
+      <dd>{{ fieldTypeLabel[field.type] }}</dd>
       <dt>Статус</dt>
       <dd>
         @if(field.status === FIELD_STATUS.FREE)

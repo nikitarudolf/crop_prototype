@@ -40,14 +40,12 @@ export default class FieldsController {
       field,
       activeSeeding,
       seedingHistory,
-      FIELD_STATUS,
-      SEEDING_STATUS,
     })
   }
 
   async edit({ params, view }: HttpContext) {
     const field = await Field.findOrFail(params.id)
-    return view.render('pages/fields/edit', { field, fieldTypes: FIELD_TYPES, FIELD_STATUS })
+    return view.render('pages/fields/edit', { field, fieldTypes: FIELD_TYPES })
   }
 
   async update({ params, request, response, session }: HttpContext) {

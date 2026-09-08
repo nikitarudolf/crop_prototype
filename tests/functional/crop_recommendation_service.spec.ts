@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import Crop from '#models/crop'
 import Field from '#models/field'
 import Seeding from '#models/seeding'
-import CropRecommendationService from '#services/crop_recommendation_service'
+import { getRecommendation } from '#services/crop_recommendation_service'
 import { FIELD_STATUS } from '#constants/field'
 import type { FieldType } from '#constants/field'
 import { SEEDING_STATUS, PROBABILITY_LABEL } from '#constants/seeding'
@@ -33,7 +33,7 @@ test.group('CropRecommendationService', () => {
     const field = await createField('chernozem')
     const wheat = await createCrop('Пшеница', 'cereal')
 
-    const probability = await new CropRecommendationService().getProbability(field, wheat.id)
+    const { probability } = await getRecommendation(field, wheat.id)
 
     assert.equal(probability, PROBABILITY_LABEL.HIGH)
   })
@@ -44,7 +44,7 @@ test.group('CropRecommendationService', () => {
     const barley = await createCrop('Ячмень', 'cereal')
     await completedSeeding(field, wheat)
 
-    const probability = await new CropRecommendationService().getProbability(field, barley.id)
+    const { probability } = await getRecommendation(field, barley.id)
 
     assert.equal(probability, PROBABILITY_LABEL.MEDIUM)
   })
@@ -55,7 +55,7 @@ test.group('CropRecommendationService', () => {
     const barley = await createCrop('Ячмень', 'cereal')
     await completedSeeding(field, wheat)
 
-    const probability = await new CropRecommendationService().getProbability(field, barley.id)
+    const { probability } = await getRecommendation(field, barley.id)
 
     assert.equal(probability, PROBABILITY_LABEL.LOW)
   })
@@ -64,7 +64,7 @@ test.group('CropRecommendationService', () => {
     const field = await createField('sandy_loam')
     const wheat = await createCrop('Пшеница', 'cereal')
 
-    const probability = await new CropRecommendationService().getProbability(field, wheat.id)
+    const { probability } = await getRecommendation(field, wheat.id)
 
     assert.equal(probability, PROBABILITY_LABEL.MEDIUM)
   })
@@ -78,10 +78,11 @@ test.group('CropRecommendationService', () => {
     await completedSeeding(field, peas, 12)
     await completedSeeding(field, wheat, 1)
 
-    const service = new CropRecommendationService()
+    const forBarley = await getRecommendation(field, barley.id)
+    const forPeas = await getRecommendation(field, peas.id)
 
-    assert.equal(await service.getProbability(field, barley.id), PROBABILITY_LABEL.MEDIUM)
-    assert.equal(await service.getProbability(field, peas.id), PROBABILITY_LABEL.HIGH)
+    assert.equal(forBarley.probability, PROBABILITY_LABEL.MEDIUM)
+    assert.equal(forPeas.probability, PROBABILITY_LABEL.HIGH)
   })
 
   test('"other" is a catch-all, not a family: it never blocks rotation', async ({ assert }) => {
@@ -90,7 +91,7 @@ test.group('CropRecommendationService', () => {
     const next = await createCrop('Лён', 'other')
     await completedSeeding(field, previous)
 
-    const probability = await new CropRecommendationService().getProbability(field, next.id)
+    const { probability } = await getRecommendation(field, next.id)
 
     assert.equal(probability, PROBABILITY_LABEL.HIGH)
   })

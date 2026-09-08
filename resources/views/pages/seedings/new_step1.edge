@@ -2,7 +2,7 @@
   <div class="page-header">
     <div>
       <h1>{{ field.displayName }}</h1>
-      <p class="lead">Площадь: {{ field.area }} га · Тип почвы: {{ fieldTypeLabel(field.type) }}</p>
+      <p class="lead">Площадь: {{ field.area }} га · Тип почвы: {{ fieldTypeLabel[field.type] }}</p>
     </div>
   </div>
 
@@ -46,9 +46,9 @@
             </div>
 
             <div>
-              @if(item.probability === 'high')
+              @if(item.probability === PROBABILITY_LABEL.HIGH)
                 <span class="badge badge-ok">Рекомендуется</span>
-              @elseif(item.probability === 'medium')
+              @elseif(item.probability === PROBABILITY_LABEL.MEDIUM)
                 <span class="badge">С оговорками</span>
               @else
                 <span class="badge badge-warn">Не рекомендуется</span>

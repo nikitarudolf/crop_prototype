@@ -15,7 +15,7 @@
           @!select.control({
             options: cropFamilies.map((f) => ({
               value: f,
-              name: cropFamilyLabel(f),
+              name: cropFamilyLabel[f],
             })),
           })
           @!field.error()

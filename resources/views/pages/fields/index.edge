@@ -20,9 +20,9 @@
             <tr>
               <td>{{ field.displayName }}</td>
               <td>{{ field.area }}</td>
-              <td>{{ fieldTypeLabel(field.type) }}</td>
+              <td>{{ fieldTypeLabel[field.type] }}</td>
               <td>
-                @if(field.status === 'free')
+                @if(field.status === FIELD_STATUS.FREE)
                   <span class="badge badge-ok">Свободно</span>
                 @else
                   <span class="badge">Занято</span>

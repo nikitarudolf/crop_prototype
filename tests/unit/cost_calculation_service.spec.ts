@@ -1,5 +1,5 @@
 import { test } from '@japa/runner'
-import CostCalculationService from '#services/cost_calculation_service'
+import { calculateCost } from '#services/cost_calculation_service'
 import type Crop from '#models/crop'
 import type Fertilizer from '#models/fertilizer'
 
@@ -15,10 +15,9 @@ test.group('CostCalculationService', () => {
   test('calculates seed, fertilizer and total cost for a field with a fertilizer plan', ({
     assert,
   }) => {
-    const service = new CostCalculationService()
     const crop = makeCrop(180, 3.5)
 
-    const result = service.calculate({
+    const result = calculateCost({
       crop,
       fieldAreaHa: 10,
       fertilizerPlan: [
@@ -37,10 +36,9 @@ test.group('CostCalculationService', () => {
   })
 
   test('handles an empty fertilizer plan', ({ assert }) => {
-    const service = new CostCalculationService()
     const crop = makeCrop(180, 3.5)
 
-    const result = service.calculate({ crop, fieldAreaHa: 10, fertilizerPlan: [] })
+    const result = calculateCost({ crop, fieldAreaHa: 10, fertilizerPlan: [] })
 
     assert.equal(result.fertilizerCost, 0)
     assert.equal(result.totalCost, result.seedCost)
@@ -48,10 +46,9 @@ test.group('CostCalculationService', () => {
   })
 
   test('does not divide by zero when field area is zero', ({ assert }) => {
-    const service = new CostCalculationService()
     const crop = makeCrop(180, 3.5)
 
-    const result = service.calculate({ crop, fieldAreaHa: 0, fertilizerPlan: [] })
+    const result = calculateCost({ crop, fieldAreaHa: 0, fertilizerPlan: [] })
 
     assert.equal(result.costPerHa, 0)
     assert.equal(result.costPerExpectedTon, 0)

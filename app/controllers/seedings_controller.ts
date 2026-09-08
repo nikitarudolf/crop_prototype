@@ -1,15 +1,19 @@
 import Crop from '#models/crop'
 import Fertilizer from '#models/fertilizer'
 import Seeding from '#models/seeding'
-import CostCalculationService from '#services/cost_calculation_service'
-import CropRecommendationService from '#services/crop_recommendation_service'
-import FertilizerPlanService from '#services/fertilizer_plan_service'
-import SeedingService from '#services/seeding_service'
+import { calculateCost } from '#services/cost_calculation_service'
+import * as cropRecommendation from '#services/crop_recommendation_service'
+import * as fertilizerPlans from '#services/fertilizer_plan_service'
+import {
+  getFreeFieldOrFail,
+  buildPreview,
+  createSeeding,
+  completeSeeding,
+} from '#services/seeding_service'
 import type { SeedingPlanInput } from '#services/seeding_service'
-import { SEEDING_STATUS, probabilityText } from '#constants/seeding'
+import { SEEDING_STATUS } from '#constants/seeding'
 import { seedingPlanValidator, completeSeedingValidator } from '#validators/seeding'
 import type { HttpContext } from '@adonisjs/core/http'
-import { inject } from '@adonisjs/core'
 
 interface RawStageRow {
   stageName?: string
@@ -32,15 +36,7 @@ function toStageRows(value: unknown): RawStageRow[] {
   return value.filter((row): row is RawStageRow => typeof row === 'object' && row !== null)
 }
 
-@inject()
 export default class SeedingsController {
-  constructor(
-    private seedingService: SeedingService,
-    private cropService: CropRecommendationService,
-    private fertilizerPlanService: FertilizerPlanService,
-    private costService: CostCalculationService
-  ) {}
-
   async index({ request, view }: HttpContext) {
     const requestedStatus = request.input('status', SEEDING_STATUS.ACTIVE)
     const status = Object.values(SEEDING_STATUS).includes(requestedStatus)
@@ -53,7 +49,7 @@ export default class SeedingsController {
       .preload('crop')
       .orderBy('startedAt', 'desc')
 
-    return view.render('pages/seedings/index', { seedings, currentStatus: status, SEEDING_STATUS })
+    return view.render('pages/seedings/index', { seedings, currentStatus: status })
   }
 
   async show({ params, view }: HttpContext) {
@@ -66,20 +62,18 @@ export default class SeedingsController {
 
     return view.render('pages/seedings/show', {
       seeding,
-      SEEDING_STATUS,
-      probabilityText: probabilityText(seeding.probability),
       expectedTons: this.toTons(seeding.expectedYieldPerHa, seeding.field.area),
       actualTons: this.toTons(seeding.actualYieldPerHa, seeding.field.area),
     })
   }
 
   async newStep1({ params, request, view }: HttpContext) {
-    const field = await this.seedingService.getFreeFieldOrFail(params.fieldId)
-    const recommendations = await this.cropService.getRecommendedCrops(field)
+    const field = await getFreeFieldOrFail(params.fieldId)
+    const recommendations = await cropRecommendation.getRecommendedCrops(field)
 
     const items = recommendations.map((item) => ({
       ...item,
-      cost: this.costService.calculate({
+      cost: calculateCost({
         crop: item.crop,
         fieldAreaHa: field.area,
         fertilizerPlan: [],
@@ -94,7 +88,7 @@ export default class SeedingsController {
   }
 
   async newStep2({ params, request, view, session, response }: HttpContext) {
-    const field = await this.seedingService.getFreeFieldOrFail(params.fieldId)
+    const field = await getFreeFieldOrFail(params.fieldId)
 
     const cropId = Number(request.input('cropId'))
     const crop = Number.isFinite(cropId) && cropId > 0 ? await Crop.find(cropId) : null
@@ -126,10 +120,12 @@ export default class SeedingsController {
   }
 
   async newStep3({ params, request, view }: HttpContext) {
-    const field = await this.seedingService.getFreeFieldOrFail(params.fieldId)
+    const field = await getFreeFieldOrFail(params.fieldId)
     const input = await this.parsePlanRequest(request)
-    const { crop, fertilizerPlan, cost, probability, probabilityReason } =
-      await this.seedingService.buildPreview(field, input)
+    const { crop, fertilizerPlan, cost, probability, probabilityReason } = await buildPreview(
+      field,
+      input
+    )
 
     return view.render('pages/seedings/new_step3', {
       field,
@@ -137,21 +133,20 @@ export default class SeedingsController {
       fertilizerPlan,
       cost,
       probability,
-      probabilityText: probabilityText(probability),
       probabilityReason,
     })
   }
 
   async store({ params, request, response }: HttpContext) {
     const input = await this.parsePlanRequest(request)
-    const seeding = await this.seedingService.createSeeding(params.fieldId, input)
+    const seeding = await createSeeding(params.fieldId, input)
 
     return response.redirect().toRoute('seedings.show', { id: seeding.id })
   }
 
   async complete({ params, request, response }: HttpContext) {
     const { actualYieldPerHa } = await request.validateUsing(completeSeedingValidator)
-    const seeding = await this.seedingService.completeSeeding(params.id, actualYieldPerHa)
+    const seeding = await completeSeeding(params.id, actualYieldPerHa)
 
     return response.redirect().toRoute('seedings.show', { id: seeding.id })
   }
@@ -180,7 +175,7 @@ export default class SeedingsController {
       }
     }
 
-    const plan = await this.fertilizerPlanService.getRecommendedPlan(crop.name)
+    const plan = await fertilizerPlans.getRecommendedPlan(crop.name)
 
     return {
       rows: plan.map((item, index) => ({

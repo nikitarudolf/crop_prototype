@@ -20,7 +20,7 @@
           @!select.control({
             options: fieldTypes.map((t) => ({
               value: t,
-              name: fieldTypeLabel(t),
+              name: fieldTypeLabel[t],
             })),
           })
           @!field.error()
