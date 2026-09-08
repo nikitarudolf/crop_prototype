@@ -1,4 +1,5 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { numericColumn } from '#models/columns'
 import { DateTime } from 'luxon'
 import type { FieldStatus, FieldType } from '#constants/field'
 import { hasMany } from '@adonisjs/lucid/orm'
@@ -12,7 +13,7 @@ export default class Field extends BaseModel {
   @column()
   declare name: string | null
 
-  @column({ consume: (value: string | number) => Number(value) })
+  @column(numericColumn)
   declare area: number
 
   @column()

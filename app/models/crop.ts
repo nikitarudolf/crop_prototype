@@ -1,4 +1,5 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { numericColumn } from '#models/columns'
 import { DateTime } from 'luxon'
 import type { CropFamily } from '#constants/crop'
 import { hasMany } from '@adonisjs/lucid/orm'
@@ -15,10 +16,10 @@ export default class Crop extends BaseModel {
   @column()
   declare family: CropFamily
 
-  @column({ consume: (value: string | number) => Number(value) })
+  @column(numericColumn)
   declare price: number
 
-  @column({ consume: (value: string | number) => Number(value) })
+  @column(numericColumn)
   declare avgYieldPerHa: number
 
   @column.dateTime({ autoCreate: true })

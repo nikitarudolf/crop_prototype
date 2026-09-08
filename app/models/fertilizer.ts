@@ -1,4 +1,5 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { numericColumn } from '#models/columns'
 import { DateTime } from 'luxon'
 
 export default class Fertilizer extends BaseModel {
@@ -8,7 +9,7 @@ export default class Fertilizer extends BaseModel {
   @column()
   declare name: string
 
-  @column({ consume: (value: string | number) => Number(value) })
+  @column(numericColumn)
   declare price: number
 
   @column.dateTime({ autoCreate: true })

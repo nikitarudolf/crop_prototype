@@ -1,4 +1,5 @@
 import { BaseModel, column, belongsTo, hasMany } from '@adonisjs/lucid/orm'
+import { numericColumn, nullableNumericColumn } from '#models/columns'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import { DateTime } from 'luxon'
 import Field from '#models/field'
@@ -28,19 +29,19 @@ export default class Seeding extends BaseModel {
   @column()
   declare probability: ProbabilityLabel | null
 
-  @column({ consume: (value: string | number | null) => (value === null ? null : Number(value)) })
+  @column(nullableNumericColumn)
   declare actualYieldPerHa: number | null
 
-  @column({ consume: (value: string | number) => Number(value) })
+  @column(numericColumn)
   declare cost: number
 
-  @column({ consume: (value: string | number | null) => (value === null ? null : Number(value)) })
+  @column(nullableNumericColumn)
   declare seedCost: number | null
 
-  @column({ consume: (value: string | number | null) => (value === null ? null : Number(value)) })
+  @column(nullableNumericColumn)
   declare fertilizerCost: number | null
 
-  @column({ consume: (value: string | number | null) => (value === null ? null : Number(value)) })
+  @column(nullableNumericColumn)
   declare expectedYieldPerHa: number | null
 
   @column.dateTime({ autoCreate: true })
