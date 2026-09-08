@@ -13,28 +13,18 @@ import {
 import type { SeedingPlanInput } from '#services/seeding_service'
 import { SEEDING_STATUS } from '#constants/seeding'
 import { CENTNERS_PER_TON } from '#constants/crop'
-import { seedingPlanValidator, completeSeedingValidator } from '#validators/seeding'
+import {
+  seedingPlanValidator,
+  completeSeedingValidator,
+  stageRowsValidator,
+} from '#validators/seeding'
 import type { HttpContext } from '@adonisjs/core/http'
-
-interface RawStageRow {
-  stageName?: string
-  fertilizerId?: string
-  dosagePerHa?: string
-}
 
 interface StagePlanRow {
   uid: number
   stageName: string
   fertilizerId: string
   dosagePerHa: string | number
-}
-
-function toStageRows(value: unknown): RawStageRow[] {
-  if (!Array.isArray(value)) {
-    return []
-  }
-
-  return value.filter((row): row is RawStageRow => typeof row === 'object' && row !== null)
 }
 
 export default class SeedingsController {
@@ -163,15 +153,15 @@ export default class SeedingsController {
     session: HttpContext['session'],
     crop: Crop
   ): Promise<{ rows: StagePlanRow[]; showEmptyPlanNotice: boolean }> {
-    const flashed = toStageRows(session.flashMessages.get('stages'))
-    const submitted = flashed.length ? flashed : toStageRows(request.input('stages'))
+    const flashed = await this.parseStageRows(session.flashMessages.get('stages'))
+    const submitted = flashed.length ? flashed : await this.parseStageRows(request.input('stages'))
 
     if (submitted.length) {
       return {
         rows: submitted.map((row, index) => ({
           uid: index,
           stageName: row.stageName ?? '',
-          fertilizerId: String(row.fertilizerId ?? ''),
+          fertilizerId: row.fertilizerId ?? '',
           dosagePerHa: row.dosagePerHa ?? '',
         })),
         showEmptyPlanNotice: false,
@@ -189,6 +179,12 @@ export default class SeedingsController {
       })),
       showEmptyPlanNotice: plan.length === 0,
     }
+  }
+
+  private async parseStageRows(value: unknown) {
+    const [, rows] = await stageRowsValidator.tryValidate(value)
+
+    return rows ?? []
   }
 
   private parsePlanRequest(request: HttpContext['request']): Promise<SeedingPlanInput> {

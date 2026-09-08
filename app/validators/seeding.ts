@@ -14,3 +14,13 @@ export const seedingPlanValidator = vine.create({
 export const completeSeedingValidator = vine.create({
   actualYieldPerHa: vine.number().min(0).decimal([0, 2]),
 })
+
+export const stageRowsValidator = vine.create(
+  vine.array(
+    vine.object({
+      stageName: vine.string().optional(),
+      fertilizerId: vine.string().optional(),
+      dosagePerHa: vine.string().optional(),
+    })
+  )
+)
