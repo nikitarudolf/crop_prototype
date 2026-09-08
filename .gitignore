@@ -14,3 +14,6 @@ public/assets/
 *.db-journal
 *.db-shm
 *.db-wal
+
+TODO.md
+ADONIS_FOR_JAVA_DEVS.md
