@@ -15,7 +15,7 @@ test.group('CostCalculationService', () => {
   test('calculates seed, fertilizer and total cost for a field with a fertilizer plan', ({
     assert,
   }) => {
-    const crop = makeCrop(180, 3.5)
+    const crop = makeCrop(180, 35)
 
     const result = calculateCost({
       crop,
@@ -36,7 +36,7 @@ test.group('CostCalculationService', () => {
   })
 
   test('handles an empty fertilizer plan', ({ assert }) => {
-    const crop = makeCrop(180, 3.5)
+    const crop = makeCrop(180, 35)
 
     const result = calculateCost({ crop, fieldAreaHa: 10, fertilizerPlan: [] })
 
@@ -46,7 +46,7 @@ test.group('CostCalculationService', () => {
   })
 
   test('does not divide by zero when field area is zero', ({ assert }) => {
-    const crop = makeCrop(180, 3.5)
+    const crop = makeCrop(180, 35)
 
     const result = calculateCost({ crop, fieldAreaHa: 0, fertilizerPlan: [] })
 

@@ -25,7 +25,7 @@ function completedSeeding(field: Field, crop: Crop, monthsAgo = 1) {
 }
 
 function createCrop(name: string, family: CropFamily) {
-  return Crop.create({ name, family, price: 180, avgYieldPerHa: 3.5 })
+  return Crop.create({ name, family, price: 180, avgYieldPerHa: 35 })
 }
 
 test.group('CropRecommendationService', () => {

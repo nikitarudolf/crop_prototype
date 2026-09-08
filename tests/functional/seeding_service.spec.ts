@@ -14,7 +14,7 @@ test.group('SeedingService', () => {
       name: 'Пшеница',
       family: 'cereal',
       price: 180,
-      avgYieldPerHa: 3.5,
+      avgYieldPerHa: 35,
     })
 
     await assert.rejects(
@@ -31,7 +31,7 @@ test.group('SeedingService', () => {
       name: 'Пшеница',
       family: 'cereal',
       price: 180,
-      avgYieldPerHa: 3.5,
+      avgYieldPerHa: 35,
     })
     const fertilizer = await Fertilizer.create({ name: 'Аммофос', price: 2.2 })
 
@@ -54,12 +54,12 @@ test.group('SeedingService', () => {
       name: 'Пшеница',
       family: 'cereal',
       price: 180,
-      avgYieldPerHa: 3.5,
+      avgYieldPerHa: 35,
     })
 
     const seeding = await createSeeding(field.id, { cropId: crop.id, stages: [] })
-    await completeSeeding(seeding.id, 3.2)
+    await completeSeeding(seeding.id, 32)
 
-    await assert.rejects(() => completeSeeding(seeding.id, 3.2), SeedingAlreadyCompletedException)
+    await assert.rejects(() => completeSeeding(seeding.id, 32), SeedingAlreadyCompletedException)
   })
 })

@@ -1,5 +1,6 @@
 import type Crop from '#models/crop'
 import type { FertilizerPlanItem } from '#services/fertilizer_plan_service'
+import { CENTNERS_PER_TON } from '#constants/crop'
 
 interface CalculateParams {
   crop: Crop
@@ -36,7 +37,7 @@ export function calculateCost(params: CalculateParams): CostResult {
   const totalCost = seedCost + fertilizerCost
   const costPerHa = fieldAreaHa > 0 ? totalCost / fieldAreaHa : 0
 
-  const expectedTons = crop.avgYieldPerHa * fieldAreaHa
+  const expectedTons = (crop.avgYieldPerHa * fieldAreaHa) / CENTNERS_PER_TON
   const costPerExpectedTon = expectedTons > 0 ? totalCost / expectedTons : 0
 
   return {

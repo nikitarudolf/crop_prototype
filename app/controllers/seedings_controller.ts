@@ -12,6 +12,7 @@ import {
 } from '#services/seeding_service'
 import type { SeedingPlanInput } from '#services/seeding_service'
 import { SEEDING_STATUS } from '#constants/seeding'
+import { CENTNERS_PER_TON } from '#constants/crop'
 import { seedingPlanValidator, completeSeedingValidator } from '#validators/seeding'
 import type { HttpContext } from '@adonisjs/core/http'
 
@@ -152,7 +153,9 @@ export default class SeedingsController {
   }
 
   private toTons(yieldPerHa: number | null, fieldAreaHa: number): number | null {
-    return yieldPerHa === null ? null : Math.round(yieldPerHa * fieldAreaHa * 100) / 100
+    return yieldPerHa === null
+      ? null
+      : Math.round((yieldPerHa * fieldAreaHa * 100) / CENTNERS_PER_TON) / 100
   }
 
   private async buildStagePlanRows(

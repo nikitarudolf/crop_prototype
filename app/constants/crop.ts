@@ -1,5 +1,7 @@
 import type { FieldType } from '#constants/field'
 
+export const CENTNERS_PER_TON = 10
+
 export const CROP_FAMILIES = ['cereal', 'legume', 'oilseed', 'root', 'other'] as const
 
 export type CropFamily = (typeof CROP_FAMILIES)[number]
