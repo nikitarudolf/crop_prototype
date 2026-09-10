@@ -31,9 +31,6 @@ export default class Crop extends BaseModel {
   @hasMany(() => Seeding)
   declare seedings: HasMany<typeof Seeding>
 
-  /**
-   * Canonical order for every crop list shown to the user.
-   */
   static ordered = scope((query) => {
     query.orderBy('name', 'asc')
   })
