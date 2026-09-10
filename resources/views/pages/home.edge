@@ -1,7 +1,13 @@
 @layout({ title: 'Главная' })
-  <div class="home-intro">
-    <h1>Учёт посевов</h1>
-    <p class="lead">Поля, справочники культур и удобрений, посевы.</p>
+  <div class="hero">
+    <h1>ByCrop</h1>
+    <p class="hero-lead">
+      Сервис планирования посевов: подбирает культуру под поле или поле под нужный урожай, проверяет севооборот и тип почвы, считает себестоимость вместе с планом удобрений.
+    </p>
+    <div class="hero-actions">
+      @!link({ route: 'seedings.new.start', text: 'Начать посев', variant: 'primary' })
+      @!link({ route: 'seedings.index', text: 'Мои посевы', variant: 'secondary' })
+    </div>
   </div>
 
   <div class="home-grid">

@@ -1,0 +1,79 @@
+@layout({ title: 'Начать посев — культура' })
+  <div class="page-header">
+    <div>
+      <h1>Выберите культуру</h1>
+      <p class="lead">Затем укажите, сколько урожая нужно получить — подберём поле.</p>
+    </div>
+  </div>
+  @!wizardSteps({ current: 1 })
+  @if(crops.length)
+    <div x-data="{ tons: '{{ desiredYieldTons ?? '' }}' }">
+      @form({ route: 'seedings.new.byCrop.fields', method: 'GET' })
+        @field.root({ name: 'cropId' })
+          <div class="choice-list">
+            @each(crop in crops)
+              <label class="choice">
+                <div class="choice-inner">
+                  <div class="choice-main">
+                    <input
+                      type="radio"
+                      name="cropId"
+                      value="{{ crop.id }}"
+                      {{
+                        selectedCropId && String(crop.id) === String(selectedCropId)
+                          ? 'checked'
+                          : ''
+                      }}
+                      required
+                    />
+                    <div>
+                      <span>{{ crop.name }}</span>
+                      <p class="muted">
+                        {{ cropFamilyLabel[crop.family] }}
+                        · семена
+                        {{ money(crop.price) }}/га · урожайность
+                        {{ crop.avgYieldPerHa }}
+                        ц/га
+                      </p>
+                    </div>
+                  </div>
+
+                  <p
+                    class="muted"
+                    x-show="Number(tons) > 0"
+                    x-text="'Нужно ~' + (Number(tons) * {{ CENTNERS_PER_TON }} / {{ crop.avgYieldPerHa }}).toFixed(2) + ' га'"
+                  ></p>
+                </div>
+              </label>
+            @end
+          </div>
+          @!field.error()
+        @end
+
+        <div class="panel">
+          @field.root({ name: 'desiredYieldTons' })
+            @!field.label({ text: 'Сколько урожая нужно получить (т)' })
+            @!input.control({
+              type: 'number',
+              step: '0.1',
+              min: '0.1',
+              placeholder: 'Например: 120',
+              required: true,
+              'x-model': 'tons',
+            })
+            @!field.error()
+          @end
+
+          <p class="muted">Площадь посева рассчитаем по средней урожайности культуры.</p>
+        </div>
+
+        <div class="between">
+          @!link({ route: 'seedings.new.start', text: '← Назад', variant: 'secondary' })
+          @!button({ text: 'Далее: выбор поля →', type: 'submit' })
+        </div>
+      @end
+    </div>
+  @else
+    <p class="empty">Справочник культур пуст — сначала добавьте культуру.</p>
+  @end
+@end

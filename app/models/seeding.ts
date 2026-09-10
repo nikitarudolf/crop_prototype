@@ -44,6 +44,9 @@ export default class Seeding extends BaseModel {
   @column(nullableNumericColumn)
   declare expectedYieldPerHa: number | null
 
+  @column(numericColumn)
+  declare sownArea: number
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

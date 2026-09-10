@@ -31,6 +31,11 @@ export type ScannedRoutes = {
     'fertilizers.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'fertilizers.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'fertilizers.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'seedings.new.start': { paramsTuple?: []; params?: {} }
+    'seedings.new.byField': { paramsTuple?: []; params?: {} }
+    'seedings.new.byCrop': { paramsTuple?: []; params?: {} }
+    'seedings.new.byCrop.fields': { paramsTuple?: []; params?: {} }
+    'seedings.new.byCrop.plan': { paramsTuple?: []; params?: {} }
     'seedings.new.step1': { paramsTuple: [ParamValue]; params: {'fieldId': ParamValue} }
     'seedings.new.step2': { paramsTuple: [ParamValue]; params: {'fieldId': ParamValue} }
     'seedings.new.step2.back': { paramsTuple: [ParamValue]; params: {'fieldId': ParamValue} }
@@ -56,6 +61,11 @@ export type ScannedRoutes = {
     'fertilizers.create': { paramsTuple?: []; params?: {} }
     'fertilizers.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'fertilizers.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'seedings.new.start': { paramsTuple?: []; params?: {} }
+    'seedings.new.byField': { paramsTuple?: []; params?: {} }
+    'seedings.new.byCrop': { paramsTuple?: []; params?: {} }
+    'seedings.new.byCrop.fields': { paramsTuple?: []; params?: {} }
+    'seedings.new.byCrop.plan': { paramsTuple?: []; params?: {} }
     'seedings.new.step1': { paramsTuple: [ParamValue]; params: {'fieldId': ParamValue} }
     'seedings.new.step2': { paramsTuple: [ParamValue]; params: {'fieldId': ParamValue} }
     'seedings.index': { paramsTuple?: []; params?: {} }
@@ -77,6 +87,11 @@ export type ScannedRoutes = {
     'fertilizers.create': { paramsTuple?: []; params?: {} }
     'fertilizers.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'fertilizers.edit': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'seedings.new.start': { paramsTuple?: []; params?: {} }
+    'seedings.new.byField': { paramsTuple?: []; params?: {} }
+    'seedings.new.byCrop': { paramsTuple?: []; params?: {} }
+    'seedings.new.byCrop.fields': { paramsTuple?: []; params?: {} }
+    'seedings.new.byCrop.plan': { paramsTuple?: []; params?: {} }
     'seedings.new.step1': { paramsTuple: [ParamValue]; params: {'fieldId': ParamValue} }
     'seedings.new.step2': { paramsTuple: [ParamValue]; params: {'fieldId': ParamValue} }
     'seedings.index': { paramsTuple?: []; params?: {} }

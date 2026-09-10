@@ -1,0 +1,13 @@
+{{--
+  Aggregate validation errors, for forms whose fields are not rendered through
+  the field components (dynamic stage rows, radio lists). Per-field errors are
+  shown by @field.error inside a @field.root block instead.
+--}}
+@let(validationMessages = Object.values(flashMessages.get('inputErrorsBag', {})).flat())
+@if(validationMessages.length)
+  <div class="notice">
+    @each(message in validationMessages)
+      <p>{{ message }}</p>
+    @end
+  </div>
+@end

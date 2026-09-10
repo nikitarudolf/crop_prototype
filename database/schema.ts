@@ -8,15 +8,7 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
 export class CropSchema extends BaseModel {
-  static $columns = [
-    'avgYieldPerHa',
-    'createdAt',
-    'family',
-    'id',
-    'name',
-    'price',
-    'updatedAt',
-  ] as const
+  static $columns = ['avgYieldPerHa', 'createdAt', 'family', 'id', 'name', 'price', 'updatedAt'] as const
   $columns = CropSchema.$columns
   @column()
   declare avgYieldPerHa: number
@@ -69,15 +61,7 @@ export class FieldSchema extends BaseModel {
 }
 
 export class SeedingFertilizerSchema extends BaseModel {
-  static $columns = [
-    'createdAt',
-    'dosageUsed',
-    'fertilizerId',
-    'id',
-    'seedingId',
-    'stageName',
-    'updatedAt',
-  ] as const
+  static $columns = ['createdAt', 'dosageUsed', 'fertilizerId', 'id', 'seedingId', 'stageName', 'updatedAt'] as const
   $columns = SeedingFertilizerSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -96,22 +80,7 @@ export class SeedingFertilizerSchema extends BaseModel {
 }
 
 export class SeedingSchema extends BaseModel {
-  static $columns = [
-    'actualYieldPerHa',
-    'cost',
-    'createdAt',
-    'cropId',
-    'expectedYieldPerHa',
-    'fertilizerCost',
-    'fieldId',
-    'finishedAt',
-    'id',
-    'probability',
-    'seedCost',
-    'startedAt',
-    'status',
-    'updatedAt',
-  ] as const
+  static $columns = ['actualYieldPerHa', 'cost', 'createdAt', 'cropId', 'expectedYieldPerHa', 'fertilizerCost', 'fieldId', 'finishedAt', 'id', 'probability', 'seedCost', 'sownArea', 'startedAt', 'status', 'updatedAt'] as const
   $columns = SeedingSchema.$columns
   @column()
   declare actualYieldPerHa: number | null
@@ -135,6 +104,8 @@ export class SeedingSchema extends BaseModel {
   declare probability: string | null
   @column()
   declare seedCost: number | null
+  @column()
+  declare sownArea: number
   @column.dateTime()
   declare startedAt: DateTime
   @column()

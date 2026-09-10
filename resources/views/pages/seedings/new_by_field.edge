@@ -1,0 +1,34 @@
+@layout({ title: 'Начать посев — поле' })
+  <div class="page-header">
+    <div>
+      <h1>Выберите поле</h1>
+      <p class="lead">Свободные поля. Культуру подберём на следующем шаге.</p>
+    </div>
+  </div>
+  @if(fields.length)
+    <div class="choice-list">
+      @each(field in fields)
+        @link({
+          route: 'seedings.new.step1',
+          routeParams: { fieldId: field.id },
+          class: 'choice',
+        })
+          <div class="choice-inner">
+            <div>
+              <span>{{ field.displayName }}</span>
+              <p class="muted">{{ field.area }} га · {{ fieldTypeLabel[field.type] }}</p>
+            </div>
+            <span class="choice-go">Выбрать →</span>
+          </div>
+        @end
+      @end
+    </div>
+  @else
+    <p class="empty">Свободных полей нет — завершите активный посев или добавьте новое поле.</p>
+  @end
+
+  <div class="between">
+    @!link({ route: 'seedings.new.start', text: '← Назад', variant: 'secondary' })
+    @!link({ route: 'fields.create', text: 'Добавить поле', variant: 'secondary' })
+  </div>
+@end

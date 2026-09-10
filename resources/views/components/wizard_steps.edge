@@ -1,0 +1,12 @@
+@let(current = Number($props.get('current')))
+@let(titles = ['Культура и поле', 'Площадь и удобрения', 'Итог'])
+
+<div class="steps">
+  @each((title, index) in titles)
+    @let(number = index + 1)
+    <span class="step {{ number === current ? 'is-current' : number < current ? 'is-done' : '' }}">
+      {{ number }}.
+      {{ title }}
+    </span>
+  @end
+</div>

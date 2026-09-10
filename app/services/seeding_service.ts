@@ -19,6 +19,7 @@ import { DateTime } from 'luxon'
 
 export interface SeedingPlanInput {
   cropId: number
+  sownArea?: number
   stages: (PlanStage & { fertilizerId: number })[]
 }
 
@@ -28,6 +29,7 @@ export interface ResolvedPlan {
 }
 
 export interface SeedingPreview extends ResolvedPlan {
+  sownArea: number
   cost: CostResult
   probability: ProbabilityLabel
   probabilityReason: string
@@ -44,6 +46,14 @@ export async function getFreeFieldOrFail(
   }
 
   return field
+}
+
+export function resolveSownArea(field: Field, requestedArea?: number | null): number {
+  if (!Number.isFinite(Number(requestedArea)) || Number(requestedArea) <= 0) {
+    return field.area
+  }
+
+  return Math.min(Number(requestedArea), field.area)
 }
 
 export async function resolvePlan(
@@ -78,11 +88,13 @@ export async function resolvePlan(
 export async function buildPreview(field: Field, input: SeedingPlanInput): Promise<SeedingPreview> {
   const { crop, fertilizerPlan } = await resolvePlan(input)
   const recommendation = await cropRecommendation.getRecommendation(field, crop.id)
+  const sownArea = resolveSownArea(field, input.sownArea)
 
   return {
     crop,
     fertilizerPlan,
-    cost: calculateCost({ crop, fieldAreaHa: field.area, fertilizerPlan }),
+    sownArea,
+    cost: calculateCost({ crop, areaHa: sownArea, fertilizerPlan }),
     probability: recommendation.probability,
     probabilityReason: recommendation.reason,
   }
@@ -93,13 +105,15 @@ export async function createSeeding(fieldId: number, input: SeedingPlanInput): P
     const field = await getFreeFieldOrFail(fieldId, trx)
     const { crop, fertilizerPlan } = await resolvePlan(input, trx)
 
-    const cost = calculateCost({ crop, fieldAreaHa: field.area, fertilizerPlan })
+    const sownArea = resolveSownArea(field, input.sownArea)
+    const cost = calculateCost({ crop, areaHa: sownArea, fertilizerPlan })
     const { probability } = await cropRecommendation.getRecommendation(field, crop.id, trx)
 
     const seeding = await Seeding.create(
       {
         fieldId: field.id,
         cropId: crop.id,
+        sownArea,
         startedAt: DateTime.now(),
         status: SEEDING_STATUS.ACTIVE,
         probability,

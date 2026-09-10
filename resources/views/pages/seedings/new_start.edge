@@ -1,0 +1,19 @@
+@layout({ title: 'Начать посев' })
+  <div class="page-header">
+    <div>
+      <h1>Начать посев</h1>
+      <p class="lead">С чего начнём?</p>
+    </div>
+  </div>
+
+  <div class="home-grid">
+    @link({ route: 'seedings.new.byField', class: 'home-card' })
+      <h2>От поля</h2>
+      <p>Есть свободное поле — подберём культуру под его почву и историю посевов.</p>
+    @end
+    @link({ route: 'seedings.new.byCrop', class: 'home-card' })
+      <h2>От культуры</h2>
+      <p>Знаете, что и сколько нужно вырастить — подберём поле и посчитаем площадь посева.</p>
+    @end
+  </div>
+@end

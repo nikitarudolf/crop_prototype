@@ -31,6 +31,20 @@ router
     router.resource('crops', controllers.Crops)
     router.resource('fertilizers', controllers.Fertilizers)
 
+    router.get('/seedings/new', [controllers.Seedings, 'newStart']).as('seedings.new.start')
+    router
+      .get('/seedings/new/by-field', [controllers.Seedings, 'newByField'])
+      .as('seedings.new.byField')
+    router
+      .get('/seedings/new/by-crop', [controllers.Seedings, 'newByCrop'])
+      .as('seedings.new.byCrop')
+    router
+      .get('/seedings/new/by-crop/fields', [controllers.Seedings, 'newByCropFields'])
+      .as('seedings.new.byCrop.fields')
+    router
+      .get('/seedings/new/by-crop/plan', [controllers.Seedings, 'newByCropPlan'])
+      .as('seedings.new.byCrop.plan')
+
     router
       .get('/fields/:fieldId/seedings/new', [controllers.Seedings, 'newStep1'])
       .as('seedings.new.step1')

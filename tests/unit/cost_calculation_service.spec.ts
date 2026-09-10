@@ -1,5 +1,5 @@
 import { test } from '@japa/runner'
-import { calculateCost } from '#services/cost_calculation_service'
+import { calculateCost, areaForYieldTons } from '#services/cost_calculation_service'
 import type Crop from '#models/crop'
 import type Fertilizer from '#models/fertilizer'
 
@@ -19,7 +19,7 @@ test.group('CostCalculationService', () => {
 
     const result = calculateCost({
       crop,
-      fieldAreaHa: 10,
+      areaHa: 10,
       fertilizerPlan: [
         { stageName: 'Перед посевом', fertilizer: makeFertilizer(2.2), dosagePerHa: 100 },
         { stageName: 'Вегетация', fertilizer: makeFertilizer(1.6), dosagePerHa: 50 },
@@ -38,19 +38,42 @@ test.group('CostCalculationService', () => {
   test('handles an empty fertilizer plan', ({ assert }) => {
     const crop = makeCrop(180, 35)
 
-    const result = calculateCost({ crop, fieldAreaHa: 10, fertilizerPlan: [] })
+    const result = calculateCost({ crop, areaHa: 10, fertilizerPlan: [] })
 
     assert.equal(result.fertilizerCost, 0)
     assert.equal(result.totalCost, result.seedCost)
     assert.lengthOf(result.stages, 0)
   })
 
+  test('counts only the sown area, not the whole field', ({ assert }) => {
+    const crop = makeCrop(180, 35)
+
+    const result = calculateCost({
+      crop,
+      areaHa: 4,
+      fertilizerPlan: [
+        { stageName: 'Перед посевом', fertilizer: makeFertilizer(2.2), dosagePerHa: 100 },
+      ],
+    })
+
+    assert.equal(result.seedCost, 720)
+    assert.approximately(result.fertilizerCost, 880, 0.001)
+    assert.approximately(result.expectedTons, 14, 0.001)
+  })
+
   test('does not divide by zero when field area is zero', ({ assert }) => {
     const crop = makeCrop(180, 35)
 
-    const result = calculateCost({ crop, fieldAreaHa: 0, fertilizerPlan: [] })
+    const result = calculateCost({ crop, areaHa: 0, fertilizerPlan: [] })
 
     assert.equal(result.costPerHa, 0)
     assert.equal(result.costPerExpectedTon, 0)
+  })
+
+  test('converts a desired yield in tons into the area to sow', ({ assert }) => {
+    const crop = makeCrop(180, 40)
+
+    assert.approximately(areaForYieldTons(crop, 100), 25, 0.001)
+    assert.equal(areaForYieldTons(makeCrop(180, 0), 100), 0)
   })
 })

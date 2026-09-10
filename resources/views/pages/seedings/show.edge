@@ -2,7 +2,14 @@
   <div class="page-header">
     <div>
       <h1>Посев: {{ seeding.crop.name }}</h1>
-      <p class="lead">{{ seeding.field.displayName }} ({{ seeding.field.area }} га)</p>
+      <p class="lead">
+        {{ seeding.field.displayName }}
+        · засеяно
+        {{ seeding.sownArea }}
+        га из
+        {{ seeding.field.area }}
+        га
+      </p>
     </div>
     @if(seeding.status === SEEDING_STATUS.ACTIVE)
       <span class="badge badge-ok">Активный</span>
@@ -33,9 +40,13 @@
     @if(seeding.seedCost !== null && seeding.fertilizerCost !== null)
       <p class="muted">
         
+        
         Семена:
+
         {{ money(seeding.seedCost) }}
+        
          · Удобрения:
+
         {{ money(seeding.fertilizerCost) }}
         @if(seeding.expectedYieldPerHa !== null)
           · Ожидаемая урожайность:

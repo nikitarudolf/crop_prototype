@@ -5,61 +5,59 @@
       <p class="lead">Площадь: {{ field.area }} га · Тип почвы: {{ fieldTypeLabel[field.type] }}</p>
     </div>
   </div>
-
-  <div class="steps">
-    <span class="step is-current">1. Культура</span>
-    <span class="step">2. Удобрения</span>
-    <span class="step">3. Итог</span>
-  </div>
+  @!wizardSteps({ current: 1 })
   @form({
     route: 'seedings.new.step2',
     routeParams: { fieldId: field.id },
     method: 'GET',
   })
-    <div class="choice-list">
-      @each(item in recommendations)
-        <label class="choice">
-          <div class="choice-inner">
-            <div class="choice-main">
-              <input
-                type="radio"
-                name="cropId"
-                value="{{ item.crop.id }}"
-                {{
-                  selectedCropId && String(item.crop.id) === String(selectedCropId)
-                    ? 'checked'
-                    : ''
-                }}
-                required
-              />
+    @field.root({ name: 'cropId' })
+      <div class="choice-list">
+        @each(item in recommendations)
+          <label class="choice">
+            <div class="choice-inner">
+              <div class="choice-main">
+                <input
+                  type="radio"
+                  name="cropId"
+                  value="{{ item.crop.id }}"
+                  {{
+                    selectedCropId && String(item.crop.id) === String(selectedCropId)
+                      ? 'checked'
+                      : ''
+                  }}
+                  required
+                />
+                <div>
+                  <span>{{ item.crop.name }}</span>
+                  <p class="muted">
+                    Семена:
+                    {{ money(item.cost.seedCost) }}
+                    на поле ({{ money(item.crop.price) }}/га) · Ожидаемый урожай:
+                    {{ item.cost.expectedTons }}
+                    т ({{ item.crop.avgYieldPerHa }}
+                    ц/га)
+                  </p>
+                </div>
+              </div>
+
               <div>
-                <span>{{ item.crop.name }}</span>
-                <p class="muted">
-                  Семена:
-                  {{ money(item.cost.seedCost) }}
-                  на поле ({{ money(item.crop.price) }}/га) · Ожидаемый урожай:
-                  {{ item.cost.expectedTons }}
-                  т ({{ item.crop.avgYieldPerHa }}
-                  ц/га)
-                </p>
+                @if(item.probability === PROBABILITY_LABEL.HIGH)
+                  <span class="badge badge-ok">Рекомендуется</span>
+                @elseif(item.probability === PROBABILITY_LABEL.MEDIUM)
+                  <span class="badge">С оговорками</span>
+                @else
+                  <span class="badge badge-warn">Не рекомендуется</span>
+                @end
+
+                <p class="muted">{{ item.reason }}</p>
               </div>
             </div>
-
-            <div>
-              @if(item.probability === PROBABILITY_LABEL.HIGH)
-                <span class="badge badge-ok">Рекомендуется</span>
-              @elseif(item.probability === PROBABILITY_LABEL.MEDIUM)
-                <span class="badge">С оговорками</span>
-              @else
-                <span class="badge badge-warn">Не рекомендуется</span>
-              @end
-
-              <p class="muted">{{ item.reason }}</p>
-            </div>
-          </div>
-        </label>
-      @end
-    </div>
+          </label>
+        @end
+      </div>
+      @!field.error()
+    @end
 
     <p class="muted">Указана только стоимость семян. Удобрения добавятся на следующем шаге.</p>
 

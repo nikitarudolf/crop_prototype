@@ -48,6 +48,57 @@ test.group('SeedingService', () => {
     assert.equal(field.status, FIELD_STATUS.OCCUPIED)
   })
 
+  test('sows only the requested part of the field and counts cost for it', async ({ assert }) => {
+    const field = await Field.create({ area: 20, type: 'loam', status: FIELD_STATUS.FREE })
+    const crop = await Crop.create({
+      name: 'Пшеница',
+      family: 'cereal',
+      price: 180,
+      avgYieldPerHa: 35,
+    })
+    const fertilizer = await Fertilizer.create({ name: 'Аммофос', price: 2.2 })
+
+    const seeding = await createSeeding(field.id, {
+      cropId: crop.id,
+      sownArea: 8,
+      stages: [{ stageName: 'Перед посевом', fertilizerId: fertilizer.id, dosagePerHa: 100 }],
+    })
+
+    assert.equal(seeding.sownArea, 8)
+    assert.equal(seeding.seedCost, 1440)
+    assert.approximately(seeding.fertilizerCost!, 1760, 0.001)
+  })
+
+  test('a requested area larger than the field falls back to the whole field', async ({
+    assert,
+  }) => {
+    const field = await Field.create({ area: 12, type: 'loam', status: FIELD_STATUS.FREE })
+    const crop = await Crop.create({
+      name: 'Пшеница',
+      family: 'cereal',
+      price: 180,
+      avgYieldPerHa: 35,
+    })
+
+    const seeding = await createSeeding(field.id, { cropId: crop.id, sownArea: 50, stages: [] })
+
+    assert.equal(seeding.sownArea, 12)
+  })
+
+  test('without a requested area the whole field is sown', async ({ assert }) => {
+    const field = await Field.create({ area: 7, type: 'loam', status: FIELD_STATUS.FREE })
+    const crop = await Crop.create({
+      name: 'Пшеница',
+      family: 'cereal',
+      price: 180,
+      avgYieldPerHa: 35,
+    })
+
+    const seeding = await createSeeding(field.id, { cropId: crop.id, stages: [] })
+
+    assert.equal(seeding.sownArea, 7)
+  })
+
   test('cannot complete a seeding twice', async ({ assert }) => {
     const field = await Field.create({ area: 10, type: 'loam', status: FIELD_STATUS.FREE })
     const crop = await Crop.create({

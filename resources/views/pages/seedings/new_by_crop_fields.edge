@@ -1,0 +1,112 @@
+@layout({ title: 'Начать посев — поле' })
+  @let(availableOptions = options.filter((option) => option.isBigEnough))
+  <div class="page-header">
+    <div>
+      <h1>Выберите поле</h1>
+      <p class="lead">
+        {{ crop.name }}
+        · нужно
+        {{ desiredYieldTons }}
+        т · расчётная площадь посева
+        {{ requiredArea }}
+        га
+      </p>
+    </div>
+  </div>
+  @!wizardSteps({ current: 1 })
+  @if(options.length)
+    @form({ route: 'seedings.new.byCrop.plan', method: 'GET' })
+      <input type="hidden" name="cropId" value="{{ crop.id }}" />
+      <input type="hidden" name="sownArea" value="{{ requiredArea }}" />
+      <input type="hidden" name="desiredYieldTons" value="{{ desiredYieldTons }}" />
+      @field.root({ name: 'fieldId' })
+        <div class="choice-list">
+          @each(option in options)
+            <label class="choice {{ option.isBigEnough ? '' : 'is-disabled' }}">
+              <div class="choice-inner">
+                <div class="choice-main">
+                  <input
+                    type="radio"
+                    name="fieldId"
+                    value="{{ option.field.id }}"
+                    {{ option.isBigEnough ? '' : 'disabled' }}
+                    required
+                  />
+                  <div>
+                    <span>{{ option.field.displayName }}</span>
+                    <p class="muted">
+                      {{ option.field.area }}
+                      
+                    
+                    
+                    га ·
+
+
+                      {{ fieldTypeLabel[option.field.type] }}
+                      @if(option.isBigEnough)
+                        · засеем
+                        {{ requiredArea }}
+                        га из
+                        {{ option.field.area }}
+                        га
+                      @end
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  @if(!option.isBigEnough)
+                    <span class="badge badge-warn">Мало площади</span>
+                    <p class="muted">
+                      Нужно
+                      {{ requiredArea }}
+                      га, в поле только
+                      {{ option.field.area }}
+                      га — это максимум ~{{ option.maxYieldTons }}
+                      т
+                    </p>
+                  @elseif(option.probability === PROBABILITY_LABEL.HIGH)
+                    <span class="badge badge-ok">Рекомендуется</span>
+                    <p class="muted">{{ option.reason }}</p>
+                  @elseif(option.probability === PROBABILITY_LABEL.MEDIUM)
+                    <span class="badge">С оговорками</span>
+                    <p class="muted">{{ option.reason }}</p>
+                  @else
+                    <span class="badge badge-warn">Не рекомендуется</span>
+                    <p class="muted">{{ option.reason }}</p>
+                  @end
+                </div>
+              </div>
+            </label>
+          @end
+        </div>
+        @!field.error()
+      @end
+      @if(!availableOptions.length)
+        <div class="notice">
+          <p>
+            Ни одно свободное поле не вмещает
+            {{ desiredYieldTons }}
+            т. Уменьшите желаемый урожай или добавьте поле побольше.
+          </p>
+        </div>
+      @end
+
+      <div class="between">
+        @!link({
+          route: 'seedings.new.byCrop',
+          routeOptions: { qs: { cropId: crop.id, desiredYieldTons: desiredYieldTons } },
+          text: '← Назад',
+          variant: 'secondary',
+        })
+        @!button({
+          text: 'Далее: удобрения →',
+          type: 'submit',
+          disabled: availableOptions.length ? false : true,
+        })
+      </div>
+    @end
+  @else
+    <p class="empty">Свободных полей нет — завершите активный посев или добавьте новое поле.</p>
+  @end
+@end

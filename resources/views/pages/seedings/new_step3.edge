@@ -1,4 +1,3 @@
-@let(errorMessages = Object.values(flashMessages.get('inputErrorsBag', {})).flat())
 @layout({ title: 'Новый посев — подтверждение' })
   <div class="page-header">
     <div>
@@ -6,21 +5,14 @@
       <p class="lead">Проверьте данные перед сохранением</p>
     </div>
   </div>
-
-  <div class="steps">
-    <span class="step is-done">1. Культура</span>
-    <span class="step is-done">2. Удобрения</span>
-    <span class="step is-current">3. Итог</span>
-  </div>
-  @if(errorMessages.length)
-    <div class="notice">
-      @each(message in errorMessages)
-        <p>{{ message }}</p>
-      @end
-    </div>
-  @end
+  @!wizardSteps({ current: 3 })
+  @include('partials/validation_errors')
   @form({ route: 'seedings.store', routeParams: { fieldId: field.id }, method: 'POST' })
     <input type="hidden" name="cropId" value="{{ crop.id }}" />
+    <input type="hidden" name="sownArea" value="{{ sownArea }}" />
+    @if(desiredYieldTons)
+      <input type="hidden" name="desiredYieldTons" value="{{ desiredYieldTons }}" />
+    @end
     @each((item, index) in cost.stages)
       <input type="hidden" name="stages[{{ index }}][stageName]" value="{{ item.stageName }}" />
       <input
@@ -35,6 +27,11 @@
       <dl class="dl">
         <dt>Поле</dt>
         <dd>{{ field.displayName }} ({{ field.area }} га)</dd>
+        <dt>Площадь посева</dt>
+        <dd>
+          {{ sownArea }}
+          га{{ sownArea < field.area ? ` из ${field.area} га` : ' — поле целиком' }}
+        </dd>
         <dt>Культура</dt>
         <dd>{{ crop.name }}</dd>
       </dl>
@@ -86,7 +83,11 @@
       <p class="muted">Вероятность высокая: {{ probabilityReason }}</p>
     @else
       <div class="notice">
-        <p>Вероятность {{ probabilityLabel(probability).toLowerCase() }}: {{ probabilityReason }}</p>
+        <p>
+          Вероятность
+          {{ probabilityLabel(probability).toLowerCase() }}:
+          {{ probabilityReason }}
+        </p>
       </div>
     @end
 

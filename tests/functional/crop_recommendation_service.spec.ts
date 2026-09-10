@@ -3,14 +3,14 @@ import { DateTime } from 'luxon'
 import Crop from '#models/crop'
 import Field from '#models/field'
 import Seeding from '#models/seeding'
-import { getRecommendation } from '#services/crop_recommendation_service'
+import { getRecommendation, getFieldOptionsForYield } from '#services/crop_recommendation_service'
 import { FIELD_STATUS } from '#constants/field'
 import type { FieldType } from '#constants/field'
 import { SEEDING_STATUS, PROBABILITY_LABEL } from '#constants/seeding'
 import type { CropFamily } from '#constants/crop'
 
-function createField(type: FieldType) {
-  return Field.create({ area: 10, type, status: FIELD_STATUS.FREE })
+function createField(type: FieldType, area = 10) {
+  return Field.create({ area, type, status: FIELD_STATUS.FREE })
 }
 
 function completedSeeding(field: Field, crop: Crop, monthsAgo = 1) {
@@ -83,6 +83,35 @@ test.group('CropRecommendationService', () => {
 
     assert.equal(forBarley.probability, PROBABILITY_LABEL.MEDIUM)
     assert.equal(forPeas.probability, PROBABILITY_LABEL.HIGH)
+  })
+
+  test('field options mark fields that are too small and put the suitable ones first', async ({
+    assert,
+  }) => {
+    const small = await createField('chernozem', 5)
+    const big = await createField('chernozem', 40)
+    const exact = await createField('sandy_loam', 20)
+    const occupied = await Field.create({
+      area: 100,
+      type: 'chernozem',
+      status: FIELD_STATUS.OCCUPIED,
+    })
+    const wheat = await createCrop('Пшеница', 'cereal')
+
+    const { requiredArea, options } = await getFieldOptionsForYield(wheat, 56)
+
+    assert.equal(requiredArea, 16)
+    assert.notInclude(
+      options.map((option) => option.field.id),
+      occupied.id
+    )
+    assert.deepEqual(
+      options.map((option) => option.field.id),
+      [big.id, exact.id, small.id]
+    )
+    assert.isTrue(options[0].isBigEnough)
+    assert.isFalse(options[2].isBigEnough)
+    assert.equal(options[2].maxYieldTons, 17.5)
   })
 
   test('"other" is a catch-all, not a family: it never blocks rotation', async ({ assert }) => {

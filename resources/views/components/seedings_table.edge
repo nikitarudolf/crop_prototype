@@ -1,7 +1,6 @@
 @let(rows = $props.get('seedings'))
 @let(showField = $props.get('showField'))
 @let(showStatus = $props.get('showStatus'))
-
 @if(rows.length)
   <div class="table-wrap">
     <table class="data">
@@ -10,11 +9,14 @@
           @if(showField)
             <th>Поле</th>
           @end
+
           <th>Культура</th>
+          <th>Площадь, га</th>
           <th>Дата начала</th>
           @if(showStatus)
             <th>Статус</th>
           @end
+
           <th>Себестоимость</th>
           <th>Урожай, ц/га</th>
           <th>Действие</th>
@@ -26,7 +28,9 @@
             @if(showField)
               <td>{{ seeding.field.displayName }}</td>
             @end
+
             <td>{{ seeding.crop.name }}</td>
+            <td>{{ seeding.sownArea }}</td>
             <td>{{ seeding.startedAt.toFormat('dd.MM.yyyy') }}</td>
             @if(showStatus)
               <td>
@@ -37,6 +41,7 @@
                 @end
               </td>
             @end
+
             <td>
               {{ money(seeding.cost) }}
               @if(seeding.seedCost !== null && seeding.fertilizerCost !== null)
