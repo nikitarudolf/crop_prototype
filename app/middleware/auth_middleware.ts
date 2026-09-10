@@ -1,3 +1,4 @@
+import { errors as authErrors } from '@adonisjs/auth'
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 import type { Authenticators } from '@adonisjs/auth/types'
@@ -19,7 +20,20 @@ export default class AuthMiddleware {
       guards?: (keyof Authenticators)[]
     } = {}
   ) {
-    await ctx.auth.authenticateUsing(options.guards, { loginRoute: this.redirectTo })
+    try {
+      await ctx.auth.authenticateUsing(options.guards, { loginRoute: this.redirectTo })
+    } catch (error) {
+      /**
+       * The default renderer flashes an "Unauthorized access" alert before
+       * redirecting. Guests simply land on the login page instead.
+       */
+      if (error instanceof authErrors.E_UNAUTHORIZED_ACCESS) {
+        return ctx.response.redirect().withIntendedUrl().withQs().toPath(this.redirectTo)
+      }
+
+      throw error
+    }
+
     return next()
   }
 }
