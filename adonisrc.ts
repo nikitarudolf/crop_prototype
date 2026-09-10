@@ -115,6 +115,18 @@ export default defineConfig({
       reloadServer: false,
     },
     {
+      pattern: '.env.example',
+      reloadServer: false,
+    },
+    {
+      pattern: '.npmrc',
+      reloadServer: false,
+    },
+    {
+      pattern: 'README-DEPLOY.md',
+      reloadServer: false,
+    },
+    {
       pattern: 'public/**',
       reloadServer: false,
     },
