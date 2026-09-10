@@ -1,11 +1,11 @@
 import Fertilizer from '#models/fertilizer'
-import SeedingFertilizer from '#models/seeding_fertilizer'
+import { isFertilizerUsed } from '#services/reference_usage_service'
 import { fertilizerValidator } from '#validators/fertilizer'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class FertilizersController {
   async index({ view }: HttpContext) {
-    const fertilizers = await Fertilizer.query().orderBy('id', 'asc')
+    const fertilizers = await Fertilizer.query().withScopes((scopes) => scopes.ordered())
     return view.render('pages/fertilizers/index', { fertilizers })
   }
 
@@ -40,11 +40,7 @@ export default class FertilizersController {
   async destroy({ params, response, session }: HttpContext) {
     const fertilizer = await Fertilizer.findOrFail(params.id)
 
-    const isUsedInSeedings = await SeedingFertilizer.query()
-      .where('fertilizerId', fertilizer.id)
-      .first()
-
-    if (isUsedInSeedings) {
+    if (await isFertilizerUsed(fertilizer.id)) {
       session.flash('error', 'Нельзя удалить удобрение: оно используется в посевах')
       return response.redirect().toRoute('fertilizers.show', { id: fertilizer.id })
     }

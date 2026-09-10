@@ -1,6 +1,7 @@
-import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { BaseModel, column, scope } from '@adonisjs/lucid/orm'
 import { numericColumn } from '#models/columns'
 import { DateTime } from 'luxon'
+import { FIELD_STATUS } from '#constants/field'
 import type { FieldStatus, FieldType } from '#constants/field'
 import { hasMany } from '@adonisjs/lucid/orm'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
@@ -30,6 +31,20 @@ export default class Field extends BaseModel {
 
   @hasMany(() => Seeding)
   declare seedings: HasMany<typeof Seeding>
+
+  /**
+   * Canonical order for every field list shown to the user.
+   */
+  static ordered = scope((query) => {
+    query.orderBy('id', 'asc')
+  })
+
+  /**
+   * Fields that can host a new seeding, in the canonical order.
+   */
+  static free = scope((query) => {
+    query.where('status', FIELD_STATUS.FREE).orderBy('id', 'asc')
+  })
 
   get displayName(): string {
     return this.name || `Поле №${this.id}`

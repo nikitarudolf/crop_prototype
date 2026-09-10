@@ -1,4 +1,4 @@
-import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { BaseModel, column, scope } from '@adonisjs/lucid/orm'
 import { numericColumn } from '#models/columns'
 import { DateTime } from 'luxon'
 
@@ -17,4 +17,11 @@ export default class Fertilizer extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+
+  /**
+   * Canonical order for every fertilizer list shown to the user.
+   */
+  static ordered = scope((query) => {
+    query.orderBy('id', 'asc')
+  })
 }

@@ -1,12 +1,12 @@
 import Crop from '#models/crop'
-import Seeding from '#models/seeding'
+import { isCropUsed } from '#services/reference_usage_service'
 import { cropValidator } from '#validators/crop'
 import { CROP_FAMILIES } from '#constants/crop'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class CropsController {
   async index({ view }: HttpContext) {
-    const crops = await Crop.query().orderBy('id', 'asc')
+    const crops = await Crop.query().withScopes((scopes) => scopes.ordered())
     return view.render('pages/crops/index', { crops })
   }
 
@@ -41,8 +41,7 @@ export default class CropsController {
   async destroy({ params, response, session }: HttpContext) {
     const crop = await Crop.findOrFail(params.id)
 
-    const hasSeedings = await Seeding.query().where('cropId', crop.id).first()
-    if (hasSeedings) {
+    if (await isCropUsed(crop.id)) {
       session.flash('error', 'Нельзя удалить культуру: есть связанные посевы')
       return response.redirect().toRoute('crops.show', { id: crop.id })
     }

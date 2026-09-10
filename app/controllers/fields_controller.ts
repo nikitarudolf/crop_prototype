@@ -2,12 +2,13 @@ import Field from '#models/field'
 import Seeding from '#models/seeding'
 import { FIELD_STATUS, FIELD_TYPES } from '#constants/field'
 import { SEEDING_STATUS } from '#constants/seeding'
+import { isFieldUsed } from '#services/reference_usage_service'
 import { fieldValidator } from '#validators/field'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class FieldsController {
   async index({ view }: HttpContext) {
-    const fields = await Field.query().orderBy('id', 'asc')
+    const fields = await Field.query().withScopes((scopes) => scopes.ordered())
     return view.render('pages/fields/index', { fields })
   }
 
@@ -69,8 +70,7 @@ export default class FieldsController {
   async destroy({ params, response, session }: HttpContext) {
     const field = await Field.findOrFail(params.id)
 
-    const hasSeedings = await Seeding.query().where('fieldId', field.id).first()
-    if (hasSeedings) {
+    if (await isFieldUsed(field.id)) {
       session.flash('error', 'Нельзя удалить поле: есть связанные посевы')
       return response.redirect().toRoute('fields.show', { id: field.id })
     }
